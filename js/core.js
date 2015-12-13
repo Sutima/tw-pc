@@ -2884,6 +2884,7 @@ $("#add-signature2").click(function(e) {
 				});
 			},
 			open: function() {
+				$("#dialog-signature input").val("");
 				$("#signatureType").selectmenu("value", "Combat");
 			},
 			close: function() {
@@ -2899,7 +2900,10 @@ $("#form-signature").submit(function(e) {
 	e.preventDefault();
 	ValidationTooltips.close();
 
-	ValidationTooltips.open({target: $("#form-signature [name='signatureID']")}).setContent("Must be 3 Letters in length!");
+	if ($("#form-signature [name='signatureID']").val().length < 3) {
+		ValidationTooltips.open({target: $("#form-signature [name='signatureID']")}).setContent("Must be 3 Letters in length!");
+		$("#form-signature [name='signatureID']").select();
+	}
 });
 
 // Toggle dialog inputs based on sig type

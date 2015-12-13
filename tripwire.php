@@ -326,6 +326,11 @@ if ($row = $stmt->fetchObject()) {
 			box-sizing: border-box;
 		}
 
+		#dialog-signature [name="signatureID"], #dialog-signature .signatureType {
+			text-align: center;
+			text-transform: uppercase;
+		}
+
 		#dialog-signature .side {
 			position: relative;
 			min-height: 70px;
@@ -385,7 +390,7 @@ if ($row = $stmt->fetchObject()) {
 				<div class="side">
 					<div class="sideLabel">Jita Side</div>
 					<div class="row">
-						<span class="label">Type:&nbsp;</span><input type="text" data-autocomplete="sigType" maxlength="4" size="4" />
+						<span class="label">Type:&nbsp;</span><input type="text" class="signatureType" data-autocomplete="sigType" maxlength="4" size="4" />
 					</div>
 					<div class="row">
 						<span class="label">Leads:&nbsp;</span><input type="text" data-autocomplete="sigSystems" maxlength="20" size="20" />
@@ -398,7 +403,7 @@ if ($row = $stmt->fetchObject()) {
 				<div class="side">
 					<div class="sideLabel">Other Side</div>
 					<div class="row">
-						<span class="label">Type:&nbsp;</span><input type="text" data-autocomplete="sigType" maxlength="4" size="4" />
+						<span class="label">Type:&nbsp;</span><input type="text" class="signatureType" data-autocomplete="sigType" maxlength="4" size="4" />
 					</div>
 					<div class="row">
 						<span class="label">Leads:&nbsp;</span><input type="text" data-autocomplete="sigSystems" maxlength="20" size="20" />
