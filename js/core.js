@@ -2873,6 +2873,13 @@ $("#add-signature2").click(function(e) {
 				$("#dialog-signature [data-autocomplete='sigSystems']").autocomplete({source: tripwire.aSigSystems});
 				$("#dialog-signature [data-autocomplete='sigType']").autocomplete({source: aSigWormholes});
 
+				// Ensure first signature ID field only accepts letters
+				$("#dialog-signature [name='signatureID']").on("keyup", function() {
+					if (!/^[a-zA-Z?]*$/g.test(this.value)) {
+						this.value = this.value.substring(0, this.value.length -1);
+					}
+				});
+
 				$("#signatureType").change(function(e) {
 					if (this.value == "Wormhole") {
 						$("#site").slideUp().addClass("hidden");
