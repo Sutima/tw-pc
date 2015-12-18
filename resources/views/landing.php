@@ -2,11 +2,17 @@
 
 $server = $_SERVER['SERVER_NAME'] == 'tripwire.eve-apps.com' ? 'static.eve-apps.com' : $_SERVER['SERVER_NAME'];
 
+var_dump($_ENV);
+
+echo env('APP_NAME')."hi";
+
+HTML::style('css/landing/base.css');
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title><?= $server == 'static.eve-apps.com' ? 'Tripwire' : 'Galileo' ?></title>
+	<title><?= $_ENV['APP_NAME'] ?></title>
 
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />

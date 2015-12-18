@@ -1,26 +1,23 @@
-# README #
+## Laravel PHP Framework
 
-This is just some basic info on the source atm - more details on how to setup and the database still to come.
+[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
+[![Total Downloads](https://poser.pugx.org/laravel/framework/downloads.svg)](https://packagist.org/packages/laravel/framework)
+[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
+[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
+[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
 
-### Tripwire - EVE Online wormhole mapping web tool ###
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, queueing, and caching.
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+Laravel is accessible, yet powerful, providing powerful tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
 
-### How do I get set up? ###
+## Official Documentation
 
-* Setup PHP PDO compatible database with Tripwire blank database (coming soon)
-* Create a `db.inc.php` file in root from `db.inc.example`
-* Setup `tools/api_pull.php` under a 3 minute cron
-* More to come...
+Documentation for the framework can be found on the [Laravel website](http://laravel.com/docs).
 
-### Contribution guidelines ###
+## Contributing
 
-* Base off of master
-* Look over issues, branches or get with me to ensure it isn't already being worked on
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
 
-### Who do I talk to? ###
+### License
 
-* Daimian Mercer (Project lead / Creator)
-* Tripwire Public in-game channel
+The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
