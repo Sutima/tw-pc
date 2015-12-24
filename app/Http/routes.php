@@ -13,7 +13,11 @@
 
 //Route::get('/', 'WelcomeController@index');
 
-Route::any('/', function()
+Route::get('/', function()
 {
-    return View::make('landing');
+    return View::make('pages.landing');
+});
+
+Route::group(['prefix' => 'register'], function () {
+    Route::post('user', 'RegisterController@registerUser');
 });
