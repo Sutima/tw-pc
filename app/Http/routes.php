@@ -18,6 +18,6 @@ $app->get('/', function()
     return view('pages.landing');
 });
 
-$app->group(['prefix' => 'register'], function ($app) {
-    $app->post('user', 'App\Http\Controllers\RegisterController@registerUser');
+$app->group(['prefix' => 'register', 'namespace' => 'App\Http\Controllers'], function ($register) {
+    $register->post('user', 'RegisterController@registerUser');
 });
