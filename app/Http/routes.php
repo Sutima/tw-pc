@@ -13,11 +13,11 @@
 
 //Route::get('/', 'WelcomeController@index');
 
-Route::get('/', function()
+$app->get('/', function()
 {
-    return View::make('pages.landing');
+    return view('pages.landing');
 });
 
-Route::group(['prefix' => 'register'], function () {
-    Route::post('user', 'RegisterController@registerUser');
+$app->group(['prefix' => 'register'], function ($app) {
+    $app->post('user', 'App\Http\Controllers\RegisterController@registerUser');
 });
