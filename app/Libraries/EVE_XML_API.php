@@ -11,15 +11,30 @@ class EVE_XML_API
      */
     protected $url;
 
+    /**
+     * Identifier sent to EVE API
+     *
+     * @var string
+     */
     protected $useragent;
 
+    /**
+     * Cache date sent from last API call
+     *
+     * @var string
+     */
     public $cachedUntil;
 
+    /**
+     * Last API curl error
+     *
+     * @var string
+     */
     public $apiError;
 
     /**
 	 * Create a new controller instance.
-	 *
+     *
 	 * @return void
 	 */
 	public function __construct()
@@ -28,6 +43,11 @@ class EVE_XML_API
         $this->useragent = env('EVE_API_USERAGENT', '');
 	}
 
+    /**
+     * Parses API curl call for cached until date
+     *
+     * @return void
+     */
     private function getCachedUntil($curl)
     {
 		if ($xmlFile = @simplexml_load_string($curl)) {
@@ -42,11 +62,19 @@ class EVE_XML_API
 		}
     }
 
+    /**
+     * Performs all curl requests sent to EVE API server
+     * Checks curl response HTTP status and stores error message in $apiError
+     * returning -1. Also calls getCachedUntil() if successful.
+     * NOTE: CURLOPT_SSL_VERIFYPEER fails with some OSes
+     *
+     * @param string $url The url string that points to the specific API end-point
+     * @param array $params The key => value pairs of query values to send
+     * @return string The curl request response body
+     */
     private function call($url, $params)
     {
-        //set_exception_handler($this->apiError);
         $url = $this->url . $url;
-        //return $url . http_build_query($params);
 
         $curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL, $url);
@@ -60,8 +88,6 @@ class EVE_XML_API
         $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         if ($http_status == 403) {
-            //throw new Exception('API key not found');
-            //return call_user_func($this->apiError, 'API key not found');
             $this->apiError = 'API key not found, check Key and vCode fields';
             return -1;
         } else if ($http_status == 404) {
@@ -76,13 +102,19 @@ class EVE_XML_API
 		return $result;
     }
 
-    public function checkMask($keyID, $vCode, $mask = null)
+    /**
+     * Compares or returns the EVE API key mask
+     *
+     * @param string $keyID The EVE API key ID
+     * @param string $vCode The EVE API key vCode
+     * @param number $mask optional If passed compares and returns 0 or 1
+     * @return mixed If $mask is passed returns 0 or 1 otherwise returns the mask
+     */
+    public function checkMask($keyID, $vCode, $mask = false)
     {
         $url = '/account/APIKeyInfo.xml.aspx';
 		$params = array('keyId' => $keyID, 'vCode' => $vCode);
 
-        //$xpath = "//key[@accessMask]";
-        //return $this->call($url, $params);
         $result = $this->call($url, $params);
 		if ($xmlFile = @simplexml_load_string($result)) {
 			$xpath = $xmlFile->xpath('//key[@accessMask]');
@@ -94,6 +126,6 @@ class EVE_XML_API
             }
 		}
 
-		return 0;
+		return false;
     }
 }
