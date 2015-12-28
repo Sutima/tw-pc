@@ -94,24 +94,17 @@ class RegisterController extends Controller {
 			return $output;
 		}
 
-		// API
-		$apiError = function ($message) {
-			$output['field'] = 'api';
-			$output['error'] = $message;
-			return $output;
-		};
-
+		// EVE API work
 		$api = new EVE_XML_API;
-		//$api->apiError = $apiError;
 
-		//return $api->checkMask($request->input('api_key'), $request->input('api_code'), 33554432);
-
+		// Verify the API key access mask is exactly 'Account Status' (33554432)
 		if ($api->checkMask($request->input('api_key'), $request->input('api_code')) != 33554432) {
 			$output['field'] = 'api';
 			$output['error'] = 'Requires \'Account Status\' mask only! Cached until: ' . $api->cachedUntil;
 			return $output;
 		}
 
+		// Check if their was any errors connecting to EVE API server
 		if ($api->apiError) {
 			$output['field'] = 'api';
 			$output['error'] = $api->apiError;
