@@ -112,7 +112,15 @@ class RegisterController extends Controller {
 			return $output;
 		}
 
-		
+		$selected = $request->input('selected') ? $request->input('selected') : key($characters);
+		$character = app('db')->select("SELECT characterID, ban FROM characters WHERE characterID = :characterID",
+			['characterID' => $characters[$selected]->characterID]);
+
+		// Check if character is banned
+		if ($character->ban == true) {
+			$output['field'] = count($characters) > 1 ? 'select' : 'api';
+			$output['error'] = 'Character '.$characters[$selected]->characterName.' is banned.';
+		}
 
 		// Check if their was any errors connecting to EVE API server
 		if ($api->apiError) {

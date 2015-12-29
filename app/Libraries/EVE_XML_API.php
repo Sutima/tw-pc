@@ -3,6 +3,7 @@
 namespace App\Libraries;
 
 use App\Models\eveCharacterModel;
+use App\Exceptions\eveAPIException;
 
 class EVE_XML_API
 {
@@ -43,7 +44,20 @@ class EVE_XML_API
 	{
         $this->url = env('EVE_API', 'https://api.eveonline.com');
         $this->useragent = env('EVE_API_USERAGENT', '');
+
+        //@set_exception_handler(array($this, 'exceptionHandler'));
+        /*
+        App::error(function(eveAPIException $exception, $code)
+        {
+            return 'Debug: CustomException<br/>';
+        });
+        */
 	}
+
+    public function exceptionHandler($exception)
+    {
+        return 'Exception: ' . $exception;
+    }
 
     /**
      * Parses API curl call for cached until date
@@ -89,14 +103,18 @@ class EVE_XML_API
 		$result = curl_exec($curl);
         $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
+        //throw new eveAPIException('Hello World!');
         if ($http_status == 403) {
             $this->apiError = 'API key not found, check Key and vCode fields';
+            throw new eveAPIException('API key not found, check Key and vCode fields');
             return -1;
         } else if ($http_status == 404) {
             $this->apiError = 'EVE API server cannot be reached';
+            throw new eveAPIException('EVE API server cannot be reached');
             return -1;
         } else if ($http_status !== 200) {
             $this->apiError = 'Unknown EVE API error';
+            throw new eveAPIException('Unknown EVE API error');
             return -1;
         }
 
@@ -130,6 +148,13 @@ class EVE_XML_API
 		return false;
     }
 
+    /**
+     * Gathers EVE character info from any API key and returns a keyed array of characters
+     *
+     * @param string $keyID The EVE API key ID
+     * @param string $vCode The EVE API vCode
+     * @return array [Character ID] => Array
+     */
     public function getCharacters($keyID, $vCode)
     {
 		$url = '/account/Characters.xml.aspx';
