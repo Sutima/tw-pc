@@ -2,6 +2,8 @@
 
 namespace App\Libraries;
 
+use App\Models\eveCharacterModel;
+
 class EVE_XML_API
 {
     /**
@@ -115,9 +117,8 @@ class EVE_XML_API
         $url = '/account/APIKeyInfo.xml.aspx';
 		$params = array('keyId' => $keyID, 'vCode' => $vCode);
 
-        $result = $this->call($url, $params);
-		if ($xmlFile = @simplexml_load_string($result)) {
-			$xpath = $xmlFile->xpath('//key[@accessMask]');
+		if ($xml = @simplexml_load_string($this->call($url, $params))) {
+			$xpath = $xml->xpath('//key[@accessMask]');
 
             if ($mask) {
                 return $xpath[0]->attributes()->accessMask == $mask ? 1 : 0;
@@ -128,4 +129,34 @@ class EVE_XML_API
 
 		return false;
     }
+
+    public function getCharacters($keyID, $vCode)
+    {
+		$url = '/account/Characters.xml.aspx';
+		$params = array('keyId' => $keyID, 'vCode' => $vCode);
+        $results = array();
+
+		if ($xml = @simplexml_load_string($this->call($url, $params))) {
+			$xpath = $xml->xpath('//rowset[@name=\'characters\']/row');
+
+			foreach ($xpath as $xmlRow) {
+				$result = new eveCharacterModel;
+
+				$result->characterID = $xmlRow['characterID']->__toString();
+				$result->characterName = $xmlRow['name']->__toString();
+				$result->corporationID = $xmlRow['corporationID']->__toString();
+				$result->corporationName = $xmlRow['corporationName']->__toString();
+				$result->allianceID = $xmlRow['allianceID']->__toString();
+				$result->allianceName = $xmlRow['allianceName']->__toString();
+				$result->factionID = $xmlRow['factionID']->__toString();
+				$result->factionName = $xmlRow['factionName']->__toString();
+
+				$results[$result->characterID] = $result;
+			}
+
+			return count($results) > 0 ? $results : 0;
+		}
+
+		return false;
+	}
 }

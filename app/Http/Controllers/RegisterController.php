@@ -98,11 +98,21 @@ class RegisterController extends Controller {
 		$api = new EVE_XML_API;
 
 		// Verify the API key access mask is exactly 'Account Status' (33554432)
-		if ($api->checkMask($request->input('api_key'), $request->input('api_code')) != 33554432) {
+		if ($api->checkMask($request->input('api_key'), $request->input('api_code'), 33554432) === 0) {
 			$output['field'] = 'api';
 			$output['error'] = 'Requires \'Account Status\' mask only! Cached until: ' . $api->cachedUntil;
 			return $output;
 		}
+
+		$characters = $api->getCharacters($request->input('api_key'), $request->input('api_code'));
+
+		// When API has more then 1 character and one hasn't been selected then show them
+		if (empty($request->input('selected')) && count($characters) > 1) {
+			$output['characters'] = $characters;
+			return $output;
+		}
+
+		
 
 		// Check if their was any errors connecting to EVE API server
 		if ($api->apiError) {
