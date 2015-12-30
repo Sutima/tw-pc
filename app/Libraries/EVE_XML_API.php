@@ -103,19 +103,12 @@ class EVE_XML_API
 		$result = curl_exec($curl);
         $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-        //throw new eveAPIException('Hello World!');
-        if ($http_status == 403) {
-            $this->apiError = 'API key not found, check Key and vCode fields';
+        if ($http_status == 403 || $http_status == 400) {
             throw new eveAPIException('API key not found, check Key and vCode fields');
-            return -1;
         } else if ($http_status == 404) {
-            $this->apiError = 'EVE API server cannot be reached';
             throw new eveAPIException('EVE API server cannot be reached');
-            return -1;
         } else if ($http_status !== 200) {
-            $this->apiError = 'Unknown EVE API error';
             throw new eveAPIException('Unknown EVE API error');
-            return -1;
         }
 
 		$this->getCachedUntil($result);

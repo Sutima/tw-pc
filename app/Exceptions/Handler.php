@@ -27,6 +27,11 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $e)
     {
+        // My custom Exception Handlers
+        if (method_exists($e, 'reportOverride')) {
+            return $e->reportOverride();
+        }
+        // Other Exceptions
         return parent::report($e);
     }
 
@@ -40,10 +45,8 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $e)
     {
         // My custom Exception Handlers
-        //return $e->handle();
-        if (method_exists($e, 'handle')) {
-            //return $e->getHandler()->handle();
-            return $e->handle();
+        if (method_exists($e, 'renderOverride')) {
+            return $e->renderOverride();
         }
         // Other Exceptions
         return parent::render($request, $e);

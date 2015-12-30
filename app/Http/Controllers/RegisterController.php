@@ -35,14 +35,36 @@ class RegisterController extends Controller {
 	 */
 	public function registerUser(Request $request)
 	{
-		$validation = $this->validateRequest($request);
-		if ($validation !== true) {
-			return response()->json($validation);
+		$valid = $this->validateUserRequest($request);
+		if ($valid['result'] !== true) {
+			return response()->json($valid);
 		}
+
+		$hashedPassword = app('hash')->make($request->input('password'));
+
+		$createUser = app('db')->insert("INSERT INTO accounts (username, password) VALUES (:username, :password)",
+			['username' => $request->input('username'), 'password' => $hashedPassword]);
+
+		$lastInsertId = app('db')->connection()->getPdo()->lastInsertId();
+
+		$createCharacter = app('db')->insert("INSERT INTO characters
+			(userID, characterID, characterName, corporationID, corporationName)
+			VALUES
+			(:userID, :characterID, :characterName, :corporationID, :corporationName)",
+			['userID' => $lastInsertId,
+			'characterID' => $valid['character']->characterID,
+			'characterName' => $valid['character']->characterName,
+			'corporationID' => $valid['character']->corporationID,
+			'corporationName' => $valid['character']->corporationName]
+		);
+
+		return response()->json(array('created' => true));
 	}
 
-	private function validateRequest(Request $request)
+	private function validateUserRequest(Request $request)
 	{
+		$output['result'] = false;
+
 		// Require a username of at least 5 characters
 		if (strlen($request->input('username')) < 5) {
 			$output['field'] = 'username';
@@ -105,6 +127,7 @@ class RegisterController extends Controller {
 		}
 
 		$characters = $api->getCharacters($request->input('api_key'), $request->input('api_code'));
+		$selected = $request->input('selected') ? $request->input('selected') : key($characters);
 
 		// When API has more then 1 character and one hasn't been selected then show them
 		if (empty($request->input('selected')) && count($characters) > 1) {
@@ -112,22 +135,26 @@ class RegisterController extends Controller {
 			return $output;
 		}
 
-		$selected = $request->input('selected') ? $request->input('selected') : key($characters);
-		$character = app('db')->select("SELECT characterID, ban FROM characters WHERE characterID = :characterID",
-			['characterID' => $characters[$selected]->characterID]);
+		$character = collect(app('db')->select("SELECT characterID, ban FROM characters WHERE characterID = :characterID",
+			['characterID' => $characters[$selected]->characterID]))->first();
 
 		// Check if character is banned
-		if ($character->ban == true) {
+		if ($character && $character->ban == true) {
 			$output['field'] = count($characters) > 1 ? 'select' : 'api';
 			$output['error'] = 'Character '.$characters[$selected]->characterName.' is banned.';
-		}
-
-		// Check if their was any errors connecting to EVE API server
-		if ($api->apiError) {
-			$output['field'] = 'api';
-			$output['error'] = $api->apiError;
 			return $output;
 		}
+
+		// Check if character is already assigned to an account
+		if (count($character)) {
+			$output['field'] = count($characters) > 1 ? 'select' : 'api';
+			$output['error'] = 'Character '.$characters[$selected]->characterName.' already assigned to an account.';
+			return $output;
+		}
+
+		$output['result'] = true;
+		$output['character'] = $characters[$selected];
+		return $output;
 	}
 
 }

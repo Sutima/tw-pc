@@ -4,7 +4,12 @@ namespace App\Exceptions;
 
 class eveAPIException extends \Exception
 {
-    public function handle() {
+    public function reportOverride()
+    {
+        return;
+    }
+    public function renderOverride()
+    {
         $output['field'] = 'api';
         $output['error'] = $this->message;
 
