@@ -12,9 +12,8 @@ class RegisterController extends Controller {
 	| Register Controller
 	|--------------------------------------------------------------------------
 	|
-	| This controller renders the "marketing page" for the application and
-	| is configured to only allow guests. Like most of the other sample
-	| controllers, you are free to modify or remove it as you desire.
+	| This controller handles registration requests and creates users and
+	| EVE characters if all conditions are met.
 	|
 	*/
 
@@ -37,7 +36,7 @@ class RegisterController extends Controller {
 	{
 		$valid = $this->validateUserRequest($request);
 		if ($valid['result'] !== true) {
-			return response()->json($valid);
+			return response()->json($valid, 400);
 		}
 
 		$hashedPassword = app('hash')->make($request->input('password'));

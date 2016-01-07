@@ -241,8 +241,14 @@ $(document).ready(function() {
 				}
 
 				$("#register #user #api_select").show("slide");
-			} else if (response && response.error) {
-				if (response.field == "username") {
+			} else {
+				$("#register #user #apiError").text(response.error).show("slide");
+				$("#register #user input[name=api_key]").select();
+			}
+        }).fail(function(xhr) {
+            var response = xhr.getResponseHeader("content-type") == "application/json" ? $.parseJSON(xhr.responseText) : false;
+            if (response && response.error) {
+                if (response.field == "username") {
 					$("#register #user #userError").text(response.error).show("slide");
 					$("#register #user input[name=username]").select();
 				} else if (response.field == "password") {
@@ -254,7 +260,10 @@ $(document).ready(function() {
 				} else if (response.field == "select") {
 					$("#register #user #selectError").text(response.error).show("slide");
 				}
-			}
+			} else {
+                $("#register #user #apiError").text("Unknown error").show("slide");
+                $("#register #user input[name=api_key]").select();
+            }
 		}).always(function() {
 			$("#register #user #spinner").hide();
 			$("#register #user button[type='submit']").removeAttr("disabled").removeClass("disabled");
@@ -269,14 +278,20 @@ $(document).ready(function() {
 		$("#login #reg #spinner").show();
 
 		$.ajax({
-			url: "login.php",
+			url: "login/user",
 			type: "POST",
 			data: $(this).serialize(),
 			dataType: "JSON"
 		}).done(function(response) {
 			if (response && response.result == "success") {
 				window.location = "?system=" + (getUrlParameter("system")?getUrlParameter("system"):"");
-			} else if (response && response.error) {
+			} else {
+                $("#login #reg #passError").text('Success but error').show("slide");
+                $("#login #reg input[name=password]").select();
+            }
+        }).fail(function(xhr) {
+            var response = xhr.getResponseHeader("content-type") == "application/json" ? $.parseJSON(xhr.responseText) : false;
+            if (response && response.error) {
 				if (response.field == "username") {
 					$("#login #reg #userError").text(response.error).show("slide");
 					$("#login #reg input[name=username]").select();
@@ -284,7 +299,10 @@ $(document).ready(function() {
 					$("#login #reg #passError").text(response.error).show("slide");
 					$("#login #reg input[name=password]").select();
 				}
-			}
+			} else {
+                $("#login #reg #passError").text("Unknown error").show("slide");
+                $("#login #reg input[name=password]").select();
+            }
 		}).always(function() {
 			$("#login #reg #spinner").hide();
 			$("#login #reg button[type='submit']").removeAttr("disabled").removeClass("disabled");

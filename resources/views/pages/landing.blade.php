@@ -1,3 +1,10 @@
+<?php
+
+$character = collect(app('db')->select('SELECT characterID, characterName FROM characters WHERE userID = :userID',
+    ['userID' => session('userID')]))->first();
+
+?>
+
 @extends('layouts.landing')
 
 @section('content')
@@ -73,7 +80,7 @@
 			</div>
 		-->
 
-<?php if (!isset($_SESSION['userID'])) { ?>
+<?php if (!session('userID')) { ?>
 			<h1>Have an account?<br/><a href="#login#reg">Log into Tripwire now!</a></h1>
 <?php } else { ?>
 			<h1>You're logged in...<br/><a href="?system=">Go to Tripwire now!</a></h1>
@@ -117,13 +124,13 @@
 
 			<!-- Start Login -->
 			<div id="login" class="page">
-<?php if (isset($_SESSION['userID'])) { ?>
+<?php if (session('userID')) { ?>
 				<h1>Your currently logged in as...</h1>
 				<div style="text-align: center;">
-					<img src="//image.eveonline.com/Character/<?= $_SESSION['characterID'] ?>_128.jpg" />
-					<p><?= $_SESSION['characterName'] ?></p>
+					<img src="//image.eveonline.com/Character/<?= $character->characterID ?>_128.jpg" />
+					<p><?= $character->characterName ?></p>
 					<p style="padding-top: 25px;">
-						<a href="logout.php" class="large_button" style="text-align: center;" id="windows">
+						<a href="logout" class="large_button" style="text-align: center;" id="windows">
 							<span>Logout</span>
 						</a>
 					</p>
