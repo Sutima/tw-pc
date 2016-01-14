@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use DB;
+use Hash;
 use Illuminate\Http\Request;
 use App\Libraries\EVE_XML_API;
 
@@ -39,14 +41,14 @@ class RegisterController extends Controller {
 			return response()->json($valid, 400);
 		}
 
-		$hashedPassword = app('hash')->make($request->input('password'));
+		$hashedPassword = Hash::make($request->input('password'));
 
-		$createUser = app('db')->insert("INSERT INTO accounts (username, password) VALUES (:username, :password)",
+		$createUser = DB::insert("INSERT INTO accounts (username, password) VALUES (:username, :password)",
 			['username' => $request->input('username'), 'password' => $hashedPassword]);
 
-		$lastInsertId = app('db')->connection()->getPdo()->lastInsertId();
+		$lastInsertId = DB::connection()->getPdo()->lastInsertId();
 
-		$createCharacter = app('db')->insert("INSERT INTO characters
+		$createCharacter = DB::insert("INSERT INTO characters
 			(userID, characterID, characterName, corporationID, corporationName)
 			VALUES
 			(:userID, :characterID, :characterName, :corporationID, :corporationName)",
@@ -107,7 +109,7 @@ class RegisterController extends Controller {
 		}
 
 		// Make sure the username isn't already taken
-		$usernames = app('db')->select("SELECT username FROM accounts WHERE username = :username",
+		$usernames = DB::select("SELECT username FROM accounts WHERE username = :username",
 			['username' => $request->input('username')]);
 		if (!empty($usernames)) {
 			$output['field'] = 'username';
@@ -134,7 +136,7 @@ class RegisterController extends Controller {
 			return $output;
 		}
 
-		$character = collect(app('db')->select("SELECT characterID, ban FROM characters WHERE characterID = :characterID",
+		$character = collect(DB::select("SELECT characterID, ban FROM characters WHERE characterID = :characterID",
 			['characterID' => $characters[$selected]->characterID]))->first();
 
 		// Check if character is banned

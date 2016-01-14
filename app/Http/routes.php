@@ -2,31 +2,48 @@
 
 /*
 |--------------------------------------------------------------------------
-| Application Routes
+| Routes File
 |--------------------------------------------------------------------------
 |
-| Here is where you can register all of the routes for an application.
+| Here is where you will register all of the routes in an application.
 | It's a breeze. Simply tell Laravel the URIs it should respond to
 | and give it the controller to call when that URI is requested.
 |
 */
 
-//Route::get('/', 'WelcomeController@index');
-
-$app->get('/', function() {
+Route::group(['middleware' => 'web'], function() {
     if (isset($_GET['system'])) {
-        return view('pages.tripwire');
+        Route::get('/', ['middleware' => 'auth', function() {
+            return view('pages.tripwire');
+        }]);
     } else {
-        return view('pages.landing');
+        Route::get('/', function () {
+            return view('pages.landing');
+        });
     }
+
+    Route::group(['prefix' => 'register'], function() {
+        Route::post('user', 'RegisterController@registerUser');
+    });
+
+    Route::get('logout', 'LoginController@logout');
+
+    Route::group(['prefix' => 'login'], function() {
+        Route::post('user', ['uses' => 'LoginController@userLogin', 'middleware' => 'loginThrottle:user']);
+    });
 });
 
-$app->get('logout', ['uses' => 'LoginController@logout']);
+/*
+|--------------------------------------------------------------------------
+| Application Routes
+|--------------------------------------------------------------------------
+|
+| This route group applies the "web" middleware group to every route
+| it contains. The "web" middleware group is defined in your HTTP
+| kernel and includes session state, CSRF protection, and more.
+|
+*/
 
-$app->group(['prefix' => 'register', 'namespace' => 'App\Http\Controllers'], function ($register) {
-    $register->post('user', 'RegisterController@registerUser');
-});
-
-$app->group(['prefix' => 'login', 'namespace' => 'App\Http\Controllers'], function ($login) {
-    $login->post('user', ['uses' => 'LoginController@userLogin', 'middleware' => 'App\Http\Middleware\loginThrottle:user']);
+Route::group(['middleware' => ['web']], function () {
+    //
 });

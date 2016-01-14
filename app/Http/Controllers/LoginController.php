@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use DB;
+use Hash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
 class LoginController extends Controller {
 
@@ -16,7 +17,7 @@ class LoginController extends Controller {
 	| Login via Tripwire username & password
     | Login via EVE API key to match to Tripwire character
     | Login via EVE SSO (to be implimented)
-	|
+	| Logout destorys session and redirects to landing
 	*/
 
 	/**
@@ -27,8 +28,6 @@ class LoginController extends Controller {
 	public function __construct()
 	{
 		//$this->middleware('App\Http\Middleware\loginThrottle');
-		//$output['result'] = $route;
-		//return response()->json($output);
     }
 
     public function userLogin(Request $request)
@@ -54,7 +53,7 @@ class LoginController extends Controller {
             return response()->json($output, 400);
         }
 
-		$account = collect(app('db')->select('SELECT id, username, password, accounts.ban, characterID, characterName, corporationID, corporationName, admin, super, options FROM accounts LEFT JOIN preferences ON id = preferences.userID LEFT JOIN characters ON id = characters.userID WHERE username = :username',
+		$account = collect(DB::select('SELECT id, username, password, accounts.ban, characterID, characterName, corporationID, corporationName, admin, super, options FROM accounts LEFT JOIN preferences ON id = preferences.userID LEFT JOIN characters ON id = characters.userID WHERE username = :username',
 			['username' => $request->input('username')]))->first();
 
 		// Check if account username exists
@@ -72,7 +71,7 @@ class LoginController extends Controller {
 		}
 
 		// Check if password is correct
-		if (!app('hash')->check($request->input('password'), $account->password)) {
+		if (!Hash::check($request->input('password'), $account->password)) {
 			$output['field'] = 'password';
 			$output['error'] = 'Incorrect username or password.';
 			return response()->json($output, 400);

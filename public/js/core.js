@@ -1767,7 +1767,7 @@ var tripwire = new function() {
 		this.time;
 
 		$.ajax({
-			url: "server_status.php",
+			url: "eveStatus",
 			dataType: "JSON",
 			cache: false
 		}).done(function(data) {
