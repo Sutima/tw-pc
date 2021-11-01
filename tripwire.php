@@ -13,7 +13,6 @@ $startTime = microtime(true);
 require_once('config.php');
 require_once('settings.php');
 require_once('db.inc.php');
-require_once('db.updates.php');
 require('lib.inc.php');
 
 // Verify correct system otherwise goto default...
