@@ -58,6 +58,9 @@ if ($checkMask[1] == 0 && $checkMask[0] != 0) {
 } else if ($checkMask[1] == 2 && $checkMask[0] != $_SESSION['corporationID']) {
 	// Force current corporation mask
 	$_SESSION['mask'] = $_SESSION['corporationID'] . '.2';
+} else if ($checkMask[1] == 3 && $checkMask[0] != ($_SESSION['allianceID'] ?? false)) {
+	// Force current alliance mask (or corp if none)
+	$_SESSION['mask'] = $_SESSION['allianceID'] ? $_SESSION['allianceID'] . '.3' : $_SESSION['corporationID'] . '.2';
 }
 
 /**

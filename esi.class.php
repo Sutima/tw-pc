@@ -179,6 +179,16 @@ class esi {
 		return json_decode($result);
 	}
 
+	public function getAlliance($allianceID) {
+		$result = $this->getAPI(self::$esiUrl.'/v4/alliances/'.$allianceID.'/');
+
+		if ($result === false || !json_decode($result) || !isset(json_decode($result)->name)) {
+			return false;
+		}
+
+		return json_decode($result);
+	}
+	
 	public function getAffilitation($characterIDs){
 		if(!is_array($characterIDs))
 		{

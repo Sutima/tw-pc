@@ -166,12 +166,16 @@ if ($mode == 'create') {
 	$masks = array();
 
 	// Public mask
-	$output['masks'][] = array('mask' => '0.0', 'label' => 'Public', 'owner' => false, 'admin' => false, 'type' => 'default', 'img' => '//static.eve-apps.com/images/9_64_2.png');
+	$output['masks'][] = array('mask' => '0.0', 'label' => 'Public', 'owner' => false, 'admin' => false, 'type' => 'default', 'img' => 'images/9_64_2.png');
 	// Character mask
 	$output['masks'][] = array('mask' => $_SESSION['characterID'].'.1', 'label' => 'Private', 'owner' => false, 'admin' => true, 'type' => 'default', 'img' => '//image.eveonline.com/Character/'.$_SESSION['characterID'].'_64.jpg');
 	// Corporation mask
 	$output['masks'][] = array('mask' => $_SESSION['corporationID'].'.2', 'label' => 'Corp', 'owner' => false, 'admin' => checkAdmin($_SESSION['corporationID'].'.2'), 'type' => 'default', 'img' => '//image.eveonline.com/Corporation/'.$_SESSION['corporationID'].'_64.png');
-
+	// Alliance mask
+	if($_SESSION['allianceID'] ?? false) {
+		$output['masks'][] = array('mask' => $_SESSION['allianceID'].'.3', 'label' => 'Alliance', 'owner' => false, 'admin' => false, 'type' => 'default', 'img' => '//image.eveonline.com/Alliance/'.$_SESSION['allianceID'].'_64.png');
+	}
+	
 	// Custom masks
 	$query = 'SELECT DISTINCT masks.maskID, max(name) as name, max(ownerID) as ownerID, max(ownerType) as ownerType, max(eveID) as eveID, max(eveType) as eveType, max(admin) as admin, max(joined) as joined FROM masks LEFT JOIN `groups` ON `groups`.maskID = masks.maskID INNER JOIN characters ON characterID = :characterID WHERE (ownerID = :characterID AND ownerType = 1373) OR (ownerID = :corporationID AND ownerType = 2) OR (eveID = :characterID AND eveType = 1373 AND joined = 1) OR (eveID = :corporationID AND eveType = 2 AND joined = 1) GROUP BY masks.maskID';
 	$stmt = $mysql->prepare($query);
