@@ -61,7 +61,7 @@ function random_str(
     return $str;
 }
 
-function doLogin($account, $esi, $mysql, $ip, $username, $method) {
+function doLogin(&$output, $account, $esi, $mysql, $ip, $username, $method) {
 	if ($account->ban == 1) {
 		// Log the attempt
 		login_history($ip, $username, $method, 'fail');
@@ -125,6 +125,7 @@ if ($mode == 'login') {
 	$password 	= isset($_REQUEST['password'])?$_REQUEST['password']:null;
 	$method		= 'user';
 	$remember	= isset($_REQUEST['remember'])?1:0;
+	$output = array();
 
 	// Check input
 	if (!$username || !$password || !$ip) {
@@ -162,15 +163,15 @@ if ($mode == 'login') {
 				require('../password_hash.php');
 				$hasher = new PasswordHash(8, FALSE);
 				
-				if($error = doLogin($account, $esi, $mysql, $ip, $username, $method)) {
-					$output['field'] = 'username';
-					$output['error'] = $error;
-				} else if ($hasher->CheckPassword($password, $account->password) == false) {
+				if ($hasher->CheckPassword($password, $account->password) == false) {
 					$output['field'] = 'password';
 					$output['error'] = 'Password incorrect.';
 
 					// Log the attempt
 					login_history($ip, $username, $method, 'fail');
+				} else if($error = doLogin($output, $account, $esi, $mysql, $ip, $username, $method)) {
+					$output['field'] = 'username';
+					$output['error'] = $error;
 				} else {	// successfully started session
 					//save cookie on client PC for 30 days
 					if ($remember) {
@@ -206,7 +207,7 @@ if ($mode == 'login') {
 			$stmt->execute();
 
 			if ($account = $stmt->fetchObject()) {
-				if($error = doLogin($account, $esi, $mysql, $ip, $username, $method)) {
+				if($error = doLogin($output, $account, $esi, $mysql, $ip, $username, $method)) {
 					header('Location: ./?error=login-unknown#login#sso');
 					header('X-Login-Error: ' . $error);
 					exit();
@@ -292,7 +293,7 @@ if ($mode == 'login') {
 		$stmt->execute();
 
 		if ($account = $stmt->fetchObject()) {
-			if($error = doLogin($account, $esi, $mysql, $ip, $username, $method)) {
+			if($error = doLogin($output, $account, $esi, $mysql, $ip, $username, $method)) {
 				$output['field'] = 'username';
 				$output['error'] = $error;			
 			}
