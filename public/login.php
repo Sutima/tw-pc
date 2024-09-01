@@ -213,6 +213,13 @@ if ($mode == 'login') {
 					exit();
 				}
 
+				// Primary user access token (vs. tracked user tokens) is used
+				// to make authenticated requests needed to manage mask access.
+				$_SESSION['oauth']['subject'] = $esi->characterID;
+				$_SESSION['oauth']['accessToken'] = $esi->accessToken;
+				$_SESSION['oauth']['refreshToken'] = $esi->refreshToken;
+				$_SESSION['oauth']['tokenExpire'] = $esi->tokenExpire;
+
 				if (isset($_SESSION['ssologin_system'])) {
 					header('Location: .?system=' . $_SESSION['ssologin_system']);
 				} else {

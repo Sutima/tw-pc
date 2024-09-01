@@ -127,7 +127,7 @@ $system = $_REQUEST['system'];
 			<h3> | </h3>
 
 			<i id="settings" style="font-size: 1.7em;" data-icon="settings" class="options" data-tooltip="Settings"></i>
-			<i id="admin" style="font-size: 1.7em;" data-icon="user" data-tooltip="Mask Admin" class="<?= checkAdmin($_SESSION['mask']) || checkOwner($_SESSION['mask']) ? '' : 'disabled' ?>"></i>
+			<i id="mask-link" style="font-size: 1.7em;" data-icon="user" data-tooltip="Masks"></i>
 			<i id="layout" style="font-size: 1.7em;" data-icon="layout" data-tooltip="Customize layout"></i>
 		</span>
 	</div>
@@ -582,6 +582,29 @@ $system = $_REQUEST['system'];
 			</div>
 		</div>
 	</div>
+	
+	<div id="dialog-masks" title="Masks" class="hidden">
+		<div id="masks">
+			<div class="maskCategory">
+				<div class="maskCategoryLabel">Default</div>
+				<div id="default"></div>
+			</div>
+			<div class="maskCategory">
+				<div class="maskCategoryLabel">Personal</div>
+				<div id="personal"></div>
+			</div>
+			<div class="maskCategory">
+				<div class="maskCategoryLabel">Corporate</div>
+				<div id="corporate"></div>
+			</div>
+		</div>
+		<div id="maskControls">
+				<input type="button" id="create" value="Create" />
+				<input type="button" id="edit" value="Edit" />
+				<input type="button" id="delete" value="Delete" />
+				<input type="button" id="admin" value="Mask Admin" <?= checkAdmin($_SESSION['mask']) || checkOwner($_SESSION['mask']) ? '' : 'disabled' ?>></i>
+		</div>		
+	</div>
 
 	<div id="dialog-options" title="Settings" class="hidden">
 		<div id="optionsAccordion">
@@ -598,32 +621,7 @@ $system = $_REQUEST['system'];
 					<tr>
 						<th colspan="2" id="characters"></th>
 					</tr>
-					<tr class="line">
-						<th colspan="2">Masks:</th>
-					</tr>
-					<tr>
-						<td colspan="2" id="masks">
-							<div class="maskCategory">
-								<div class="maskCategoryLabel">Default</div>
-								<div id="default"></div>
-							</div>
-							<div class="maskCategory">
-								<div class="maskCategoryLabel">Personal</div>
-								<div id="personal"></div>
-							</div>
-							<div class="maskCategory">
-								<div class="maskCategoryLabel">Corporate</div>
-								<div id="corporate"></div>
-							</div>
-						</td>
-					</tr>
-					<tr id="maskControls">
-						<td colspan="2" style="padding: 5px 0;">
-							<input type="button" id="create" value="Create" />
-							<input type="button" id="edit" value="Edit" />
-							<input type="button" id="delete" value="Delete" />
-						</td>
-					</tr>
+
 				</table>
 				<div style="border-top: 1px solid black; text-align: right; margin: 0 -5px; padding: 5px 5px 0 5px;">
 					<input type="button" id="usernameChange" value="Change Username" />
