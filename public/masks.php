@@ -177,7 +177,7 @@ if ($mode == 'create') {
 	}
 	
 	// Custom masks
-	$query = 'SELECT DISTINCT masks.maskID, max(name) as name, max(ownerID) as ownerID, max(ownerType) as ownerType, max(eveID) as eveID, max(eveType) as eveType, max(admin) as admin, max(joined) as joined FROM masks LEFT JOIN `groups` ON `groups`.maskID = masks.maskID INNER JOIN characters ON characterID = :characterID WHERE (ownerID = :characterID AND ownerType = 1373) OR (ownerID = :corporationID AND ownerType = 2) OR (eveID = :characterID AND eveType = 1373 AND joined = 1) OR (eveID = :corporationID AND eveType = 2 AND joined = 1) GROUP BY masks.maskID';
+	$query = 'SELECT DISTINCT masks.maskID, max(name) as name, max(ownerID) as ownerID, max(ownerType) as ownerType, max(eveID) as eveID, max(eveType) as eveType, max(joined) as joined FROM masks LEFT JOIN `groups` ON `groups`.maskID = masks.maskID WHERE (ownerID = :characterID AND ownerType = 1373) OR (ownerID = :corporationID AND ownerType = 2) OR (eveID = :characterID AND eveType = 1373) OR (eveID = :corporationID AND eveType = 2) GROUP BY masks.maskID';
 	$stmt = $mysql->prepare($query);
 	$stmt->bindValue(':characterID', $_SESSION['characterID']);
 	$stmt->bindValue(':corporationID', $_SESSION['corporationID']);
@@ -187,8 +187,9 @@ if ($mode == 'create') {
 		$output['masks'][] = array(
 			'mask' => $row->maskID,
 			'label' => $row->name,
-			'optional' => ($row->admin && $row->eveID == $_SESSION['corporationID']) || $row->eveID == $_SESSION['characterID'] ? true : false,
-			'owner' => $row->admin && $row->ownerID == $_SESSION['corporationID'] || $row->ownerID == $_SESSION['characterID'] ? true : false,
+			'joined' => $row->joined,
+			'optional' => ($_SESSION['admin'] && $row->eveID == $_SESSION['corporationID']) || $row->eveID == $_SESSION['characterID'] ? true : false,
+			'owner' => $_SESSION['admin'] && $row->ownerID == $_SESSION['corporationID'] || $row->ownerID == $_SESSION['characterID'] ? true : false,
 			'admin' => checkOwner($row->maskID) || checkAdmin($row->maskID) ? true : false,
 			'type' => ($row->ownerID == $_SESSION['characterID'] && $row->ownerType == 1373) || ($row->eveID == $_SESSION['characterID'] && $row->eveType == 1373) ? 'personal' : 'corporate',
 			'img' => $row->ownerType == 2?'https://image.eveonline.com/Corporation/'.$row->ownerID.'_64.png':'https://image.eveonline.com/Character/'.$row->ownerID.'_64.jpg'
