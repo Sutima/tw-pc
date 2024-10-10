@@ -20,7 +20,7 @@ describe('Pathfinding', () => {
 	it('Routable system to system', () => { assert.deepEqual( [ sid('Amygnon'), sid('Jufvitte'), sid('Ansalle'), sid('Gisleres'), sid('Scolluzer'), sid('Sortet') ], guidance.findShortestPath(appData.map.shortest, sid('Amygnon'), sid('Sortet') )); });
 	it('Routable system to system over limit', () => { assert.deepEqual( null, guidance.findShortestPath(appData.map.shortest, sid('Amygnon'), sid('Sortet'), 4 )); });
 	it('Routable system to system within limit', () => { assert.deepEqual( [ sid('Amygnon'), sid('Jufvitte'), sid('Ansalle'), sid('Gisleres'), sid('Scolluzer'), sid('Sortet') ], guidance.findShortestPath(appData.map.shortest, sid('Amygnon'), sid('Sortet'), 5 )); });
-	it('Routable using normal system IDs (via Zarazkh)', () => { assert.deepEqual( 30, guidance.findShortestPath(appData.map.shortest, 30005003, 30001311 ).length); });
+	it('Routable using normal system IDs (ignoring Zarazkh)', () => { assert.deepEqual( 42, guidance.findShortestPath(appData.map.shortest, 30005003, 30001311 ).length); });
 	it('Routable system to multiple options system within limit', () => { assert.deepEqual( [ sid('Amygnon'), sid('Jufvitte'), sid('Ansalle'), sid('Gisleres'), sid('Scolluzer'), sid('Sortet') ], guidance.findShortestPath(appData.map.shortest, sid('Amygnon'), [sid('Sortet'), sid('Amarr')], 5 )); });
 	it('Routable many-to-many', () => { assert.deepEqual( [ sid('Arnon'), sid('Aere'), sid('Hulmate') ], guidance.findShortestPath(appData.map.shortest, [sid('Amygnon'), sid('Arnon')], [sid('Sortet'), sid('Hulmate')] )); });
 });

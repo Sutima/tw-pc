@@ -11,6 +11,7 @@ var guidance = (function (undefined) {
 		if(options.chain.routeIgnore.enabled && options.chain.routeIgnore.systems.indexOf(system.name) >= 0) {
 			mapCost += 100;	// Penalty for an avoided system
 		}
+		if(system.name == 'Zarzakh') { mapCost += 100; } // Always avoid Zarzakh for its 6h wait
 		switch(options.chain.routeSecurity) {
 			case 'highsec': return mapCost + (system.security < 0.45 ? 100 : 0);
 			case 'avoid-high': return mapCost + (system.security >= 0.45 ? 100 : 0);
