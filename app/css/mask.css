@@ -1,0 +1,2 @@
+.mask .corporate { color: green }
+.mask .alliance { color: #00a0ff;display: inline-block;transform: scaleY(-1); }	/* need the block to make the transform work */

@@ -7,6 +7,7 @@ const maskFunctions = {
 				dataType: "JSON"
 			}).done(function(response) {
 				if (response && response.masks) {
+					tripwire.masks = response.masks;
 					$("#dialog-masks #masks #default").html("");
 					$("#dialog-masks #masks #owned").html("");
 					$("#dialog-masks #masks #invited").html("");
@@ -55,9 +56,10 @@ $("#dialog-masks").dialog({
 				var maskChange = false;
 				if (options.masks.active != $("#dialog-masks input[name='mask']:checked").val()) {
 					maskChange = true;
+					options.masks.active = $("#dialog-masks input[name='mask']:checked").val();
+					const activeMask = tripwire.masks.find(x => x.mask == options.masks.active);
+					maskRendering.updateActive(activeMask);
 				}
-
-				options.masks.active = $("#dialog-masks input[name='mask']:checked").val();
 
 				options.save() // Performs AJAX
 					.done(function() {

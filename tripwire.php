@@ -10,6 +10,7 @@ $startTime = microtime(true);
 
 require_once('config.php');
 require_once('settings.php');
+require_once('masks.inc.php');
 require('lib.inc.php');
 
 $system = $_REQUEST['system'];
@@ -125,7 +126,7 @@ $system = $_REQUEST['system'];
 			</span>
 
 			<h3> | </h3>
-			<h3><a href="#" id="mask-link"><i style="font-size: 1.7em;" data-icon="user" data-tooltip="Masks"></i> <span id="mask-name"><?= $_SESSION['options']->masks->name ?? 'Masks' ?></span></a></h3>
+			<h3><a href="#" id="mask-link" data-tooltip="Current mask"><span id="mask">(???)</span></a></h3>
 			<h3> | </h3>
 
 			<i id="settings" style="font-size: 1.7em;" data-icon="settings" class="options" data-tooltip="Settings"></i>
@@ -1179,7 +1180,8 @@ $system = $_REQUEST['system'];
 
 	<script type="text/javascript">
 
-		var init = <?= json_encode($_SESSION) ?>;
+		const init = <?= json_encode($_SESSION) ?>;
+		init.masks = <?= json_encode(getMasks($_SESSION['characterID'], $_SESSION['corporationID'], $_SESSION['admin'], $_SESSION['mask'])) ?>;
 
 		var passiveHitTimer;
 		function passiveHit() {

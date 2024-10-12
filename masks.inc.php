@@ -9,14 +9,14 @@ function getMasks($characterID, $corporationID, $isAdmin, $activeMask) {
 	$masks = array();
 
 	// Public mask
-	$masks[] = array('mask' => '0.0', 'label' => 'Public', 'owner' => false, 'admin' => false, 'type' => 'default', 'joined' => 1, 'joinedBy' => 'global', 'img' => 'images/9_64_2.png');
+	$masks[] = array('mask' => '0.0', 'label' => 'Public', 'owner' => false, 'ownerType' => 'global', 'admin' => false, 'type' => 'default', 'joined' => 1, 'joinedBy' => 'global', 'img' => 'images/9_64_2.png');
 	// Character mask
-	$masks[] = array('mask' => $_SESSION['characterID'].'.1', 'label' => 'Private', 'owner' => false, 'admin' => true, 'type' => 'default', 'joined' => 1, 'joinedBy' => 'character', 'img' => '//image.eveonline.com/Character/'.$_SESSION['characterID'].'_64.jpg');
+	$masks[] = array('mask' => $_SESSION['characterID'].'.1', 'label' => 'Private', 'owner' => false, 'ownerType' => 'personal', 'admin' => true, 'type' => 'default', 'joined' => 1, 'joinedBy' => 'personal', 'img' => '//image.eveonline.com/Character/'.$_SESSION['characterID'].'_64.jpg');
 	// Corporation mask
-	$masks[] = array('mask' => $_SESSION['corporationID'].'.2', 'label' => 'Corp', 'owner' => false, 'admin' => checkAdmin($_SESSION['corporationID'].'.2'), 'type' => 'default', 'joined' => 1, 'joinedBy' => 'corporation', 'img' => '//image.eveonline.com/Corporation/'.$_SESSION['corporationID'].'_64.png');
+	$masks[] = array('mask' => $_SESSION['corporationID'].'.2', 'label' => 'Corp', 'owner' => false, 'ownerType' => 'corporate', 'admin' => checkAdmin($_SESSION['corporationID'].'.2'), 'type' => 'default', 'joined' => 1, 'joinedBy' => 'corporate', 'img' => '//image.eveonline.com/Corporation/'.$_SESSION['corporationID'].'_64.png');
 	// Alliance mask
 	if($_SESSION['allianceID'] ?? false) {
-		$masks[] = array('mask' => $_SESSION['allianceID'].'.3', 'label' => 'Alliance', 'owner' => false, 'admin' => false, 'type' => 'default', 'joined' => 1, 'joinedBy' => 'alliance', 'img' => '//image.eveonline.com/Alliance/'.$_SESSION['allianceID'].'_64.png');
+		$masks[] = array('mask' => $_SESSION['allianceID'].'.3', 'label' => 'Alliance', 'owner' => false, 'ownerType' => 'alliance', 'admin' => false, 'type' => 'default', 'joined' => 1, 'joinedBy' => 'alliance', 'img' => '//image.eveonline.com/Alliance/'.$_SESSION['allianceID'].'_64.png');
 	}
 	
 	// Custom masks
@@ -29,13 +29,15 @@ function getMasks($characterID, $corporationID, $isAdmin, $activeMask) {
 	while ($row = $stmt->fetchObject()) {
 		$owned = $_SESSION['admin'] && $row->ownerID == $_SESSION['corporationID'] || $row->ownerID == $_SESSION['characterID'] ? true : false;
 		$type = $owned ? 'owned' : 'invited';
-		$joinedBy = $owned ? ($row->ownerType == 1373 ? 'personal' : 'corporate') : ($row->eveType == 1373 ? 'personal' : 'corporate');
+		$ownerType = $row->ownerType == 1373 ? 'personal' : 'corporate';
+		$joinedBy = $owned ? $ownerType : ($row->eveType == 1373 ? 'personal' : 'corporate');
 		$masks[] = array(
 			'mask' => $row->maskID,
 			'label' => $row->name,
 			'joined' => $row->joined,
 			'optional' => ($_SESSION['admin'] && $row->eveID == $_SESSION['corporationID']) || $row->eveID == $_SESSION['characterID'] ? true : false,
 			'owner' => $owned,
+			'ownerType' => $ownerType,
 			'admin' => checkOwner($row->maskID) || checkAdmin($row->maskID) ? true : false,
 			'type' => $type,
 			'joinedBy' => $joinedBy,
