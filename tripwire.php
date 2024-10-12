@@ -125,9 +125,10 @@ $system = $_REQUEST['system'];
 			</span>
 
 			<h3> | </h3>
+			<h3><a href="#" id="mask-link"><i style="font-size: 1.7em;" data-icon="user" data-tooltip="Masks"></i> <span id="mask-name"><?= $_SESSION['options']->masks->name ?? 'Masks' ?></span></a></h3>
+			<h3> | </h3>
 
 			<i id="settings" style="font-size: 1.7em;" data-icon="settings" class="options" data-tooltip="Settings"></i>
-			<i id="mask-link" style="font-size: 1.7em;" data-icon="user" data-tooltip="Masks"></i>
 			<i id="layout" style="font-size: 1.7em;" data-icon="layout" data-tooltip="Customize layout"></i>
 		</span>
 	</div>
@@ -590,12 +591,12 @@ $system = $_REQUEST['system'];
 				<div id="default"></div>
 			</div>
 			<div class="maskCategory">
-				<div class="maskCategoryLabel">Personal</div>
-				<div id="personal"></div>
+				<div class="maskCategoryLabel">I Own</div>
+				<div id="owned"></div>
 			</div>
 			<div class="maskCategory">
-				<div class="maskCategoryLabel">Corporate</div>
-				<div id="corporate"></div>
+				<div class="maskCategoryLabel">I'm Invited</div>
+				<div id="invited"></div>
 			</div>
 		</div>
 		<div id="maskControls">

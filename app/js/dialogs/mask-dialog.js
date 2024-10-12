@@ -1,3 +1,50 @@
+const maskFunctions = {
+		getMasks: function() {
+			// Get masks
+			$.ajax({
+				url: "masks.php",
+				type: "POST",
+				dataType: "JSON"
+			}).done(function(response) {
+				if (response && response.masks) {
+					$("#dialog-masks #masks #default").html("");
+					$("#dialog-masks #masks #owned").html("");
+					$("#dialog-masks #masks #invited").html("");
+
+					for (var x in response.masks) {
+						var mask = response.masks[x];
+						var node = $(''
+							+ '<input type="radio" name="mask" id="mask'+x+'" value="'+mask.mask+'" class="selector" data-owner="'+mask.owner+'" data-admin="'+mask.admin+'" />'
+							+ '<label for="mask'+x+'"><img src="'+mask.img+'" />'
+							+  (mask.optional ? '<i class="closeIcon" onclick="return false;" data-icon="red-giant"><i data-icon="times"></i></i>' : '')
+							+ '<span class="selector_label">'+mask.label+'</span></label>');
+
+						$("#dialog-masks #masks #"+mask.type).append(node);
+					}
+
+					var node = $(''
+						+ '<input type="checkbox" name="find" id="findp" value="personal" class="selector" disabled="disabled" />'
+						+ '<label for="findp"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i></label>');
+					$("#dialog-masks #masks #owned").append(node);
+
+					if (init.admin == "1") {
+						var node = $(''
+							+ '<input type="checkbox" name="find" id="findc" value="corporate" class="selector" disabled="disabled" />'
+							+ '<label for="findc"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i></label>');
+						$("#dialog-masks #masks #invited").append(node);
+					}
+					
+					const activeMask = response.masks.find(x => x.active);
+					$("#dialog-masks input[name='mask']").filter("[value='"+activeMask.mask+"']").attr("checked", true).trigger("change");
+
+					// toggle mask admin icon
+					document.getElementById('admin').disabled = !activeMask.admin;
+				}
+			});
+		}, 
+
+};
+
 $("#dialog-masks").dialog({
 	autoOpen: false,
 	width: 450,
@@ -35,48 +82,9 @@ $("#dialog-masks").dialog({
 			$(this).dialog("close");
 		}		
 	}, 
-		open: function() {
-			// Get masks
-			$.ajax({
-				url: "masks.php",
-				type: "POST",
-				dataType: "JSON"
-			}).done(function(response) {
-				if (response && response.masks) {
-					$("#dialog-masks #masks #default").html("");
-					$("#dialog-masks #masks #personal").html("");
-					$("#dialog-masks #masks #corporate").html("");
 
-					for (var x in response.masks) {
-						var mask = response.masks[x];
-						var node = $(''
-							+ '<input type="radio" name="mask" id="mask'+x+'" value="'+mask.mask+'" class="selector" data-owner="'+mask.owner+'" data-admin="'+mask.admin+'" />'
-							+ '<label for="mask'+x+'"><img src="'+mask.img+'" />'
-							+  (mask.optional ? '<i class="closeIcon" onclick="return false;" data-icon="red-giant"><i data-icon="times"></i></i>' : '')
-							+ '<span class="selector_label">'+mask.label+'</span></label>');
-
-						$("#dialog-masks #masks #"+mask.type).append(node);
-					}
-
-					var node = $(''
-						+ '<input type="checkbox" name="find" id="findp" value="personal" class="selector" disabled="disabled" />'
-						+ '<label for="findp"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i></label>');
-					$("#dialog-masks #masks #personal").append(node);
-
-					if (init.admin == "1") {
-						var node = $(''
-							+ '<input type="checkbox" name="find" id="findc" value="corporate" class="selector" disabled="disabled" />'
-							+ '<label for="findc"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i></label>');
-						$("#dialog-masks #masks #corporate").append(node);
-					}
-
-					$("#dialog-masks input[name='mask']").filter("[value='"+response.masks[response.active].mask+"']").attr("checked", true).trigger("change");
-
-					// toggle mask admin icon
-					document.getElementById('admin').disabled = !response.masks[response.active].admin;
-				}
-			});
-		}	
+		open: function() { maskFunctions.getMasks(); }
+	
 });
 
 $("#mask-link").click(function(e) {
@@ -295,46 +303,7 @@ $("#mask-link").click(function(e) {
 							dataType: "JSON"
 						}).done(function(response) {
 							if (response && response.result) {
-								// Get masks
-								$.ajax({
-									url: "masks.php",
-									type: "POST",
-									dataType: "JSON"
-								}).done(function(response) {
-									if (response && response.masks) {
-										$("#dialog-masks #masks #default").html("");
-										$("#dialog-masks #masks #personal").html("");
-										$("#dialog-masks #masks #corporate").html("");
-
-										for (var x in response.masks) {
-											var mask = response.masks[x];
-											var node = $(''
-												+ '<input type="radio" name="mask" id="mask'+x+'" value="'+mask.mask+'" class="selector" data-owner="'+mask.owner+'" data-admin="'+mask.admin+'" />'
-												+ '<label for="mask'+x+'"><img src="'+mask.img+'" />'
-												+  (mask.optional ? '<i class="closeIcon" onclick="return false;" data-icon="red-giant"><i data-icon="times"></i></i>' : '')
-												+ '<span class="selector_label">'+mask.label+'</span></label>');
-
-											$("#dialog-masks #masks #"+mask.type).append(node);
-										}
-
-										var node = $(''
-											+ '<input type="checkbox" name="find" id="findp" value="personal" class="selector" disabled="disabled" />'
-											+ '<label for="findp"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i></label>');
-										$("#dialog-masks #masks #personal").append(node);
-
-										if (init.admin == "1") {
-											var node = $(''
-												+ '<input type="checkbox" name="find" id="findc" value="corporate" class="selector" disabled="disabled" />'
-												+ '<label for="findc"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i></label>');
-											$("#dialog-masks #masks #corporate").append(node);
-										}
-
-										$("#dialog-masks input[name='mask']").filter("[value='"+response.masks[response.active].mask+"']").attr("checked", true).trigger("change");
-
-										// toggle mask admin icon
-										document.getElementById('admin').disabled = !response.masks[response.active].admin;
-									}
-								});
+								maskFunctions.getMasks();
 
 								$("#dialog-createMask").dialog("close");
 							} else if (response && response.error) {
