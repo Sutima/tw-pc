@@ -1,2 +1,5 @@
 .mask .corporate { color: green }
-.mask .alliance { color: #00a0ff;display: inline-block;transform: scaleY(-1); }	/* need the block to make the transform work */
+.mask .alliance { color: #00a0ff;display: inline-block;transform: scaleY(-1) translateY(2px); }	/* need the block to make the transform work */
+.mask i { padding-right: 2px }
+
+#mask-menu-mask-list a { display: block }

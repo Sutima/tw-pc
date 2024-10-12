@@ -10,7 +10,19 @@ const maskRendering = new function() {
 			+ '</span>';
 	}
 	
-	this.updateActive = function(activeMask) {
+	this.update = function(masks, newActive) {
+		const activeMask = masks.find(x => newActive !== undefined ? x.mask === newActive : x.active);
 		document.getElementById('mask').innerHTML = maskRendering.renderMask(activeMask);
+		const list = document.getElementById('mask-menu-mask-list');
+		list.innerHTML = '';
+		masks.map(m => {
+			const a = document.createElement('a');
+			a.href = '#';
+			a.innerHTML = this.renderMask(m);
+			a.addEventListener('click', e => {
+				maskFunctions.updateActiveMask(m.mask, () => document.getElementById('mask-menu').style.display = 'none');
+			});
+			list.appendChild(a);
+		});
 	}
 };

@@ -61,7 +61,7 @@ $system = $_REQUEST['system'];
 				<h3><a id="user" href=""><span id="user-no-track"><?= $_SESSION['characterName'] ?></span><span id="user-track" style="display:none"><i data-icon="follow" data-tooltip="Tracking"></i><span id="user-track-name">...</span></span></a></h3>
 				<div id="panel">
 					<div id="content" class="dialog-like">
-						<div id="triangle"></div>
+						<div class="triangle"></div>
 
 						<table id="logoutTable">
 							<tr>
@@ -126,7 +126,13 @@ $system = $_REQUEST['system'];
 			</span>
 
 			<h3> | </h3>
-			<h3><a href="#" id="mask-link" data-tooltip="Current mask"><span id="mask">(???)</span></a></h3>
+			<h3><a href="#" id="mask-menu-link" data-tooltip="Current mask"><span id="mask">(???)</span></a></h3>
+			<div id="mask-menu" class="toggle-panel" style="right: 68px; top:34px; display:none">
+				<div class="triangle"></div>
+				<div id="mask-menu-mask-list"></div>
+				<hr class="bar" />
+				<a href="#" id="mask-link">Manage masks</a>
+			</div>
 			<h3> | </h3>
 
 			<i id="settings" style="font-size: 1.7em;" data-icon="settings" class="options" data-tooltip="Settings"></i>

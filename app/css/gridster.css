@@ -11,7 +11,7 @@
 	cursor: pointer;
 }
 
-.controls .toggle-panel {
+.toggle-panel {
 	position: absolute;
     background: #080808;
     border: 1px #404040 solid;

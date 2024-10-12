@@ -43,22 +43,12 @@ const maskFunctions = {
 				}
 			});
 		}, 
-
-};
-
-$("#dialog-masks").dialog({
-	autoOpen: false,
-	width: 450,
-	minHeight: 400,
-	modal: true,
-	buttons: {
-		Save: function() {
+		updateActiveMask: function(newActive, afterFunction) {
 				var maskChange = false;
-				if (options.masks.active != $("#dialog-masks input[name='mask']:checked").val()) {
+				if (options.masks.active != newActive) {
 					maskChange = true;
-					options.masks.active = $("#dialog-masks input[name='mask']:checked").val();
-					const activeMask = tripwire.masks.find(x => x.mask == options.masks.active);
-					maskRendering.updateActive(activeMask);
+					options.masks.active = newActive;
+					maskRendering.update(tripwire.masks, newActive);
 				}
 
 				options.save() // Performs AJAX
@@ -73,12 +63,23 @@ $("#dialog-masks").dialog({
 
 							tripwire.refresh('change');
 						}
-					});
-					
-				$(this).dialog("close");
-			
+						if(afterFunction) { afterFunction(); }
+					});		
+		},
+};
+
+$("#dialog-masks").dialog({
+	autoOpen: false,
+	width: 450,
+	minHeight: 400,
+	modal: true,
+	buttons: {
+		Save: function() {
+			maskFunctions.updateActiveMask($("#dialog-masks input[name='mask']:checked").val(), () => {
 				// toggle mask admin icon
 				document.getElementById('admin').disabled = !$("#dialog-masks input[name='mask']:checked").data("admin");			
+				$(this).dialog("close");
+			});
 		},
 		Close: function() {
 			$(this).dialog("close");
@@ -87,6 +88,12 @@ $("#dialog-masks").dialog({
 
 		open: function() { maskFunctions.getMasks(); }
 	
+});
+
+$("#mask-menu-link").click(function(e) {
+	e.preventDefault();
+	const elem = document.getElementById('mask-menu');
+	elem.style.display = elem.style.display == 'none' ? '' : 'none';
 });
 
 $("#mask-link").click(function(e) {

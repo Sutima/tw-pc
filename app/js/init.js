@@ -21,7 +21,6 @@ if(!viewingSystemID) { window.stop(); window.location = '?system=Jita'; }
 if(init.masks) {
 	setTimeout(() => {
 		tripwire.masks = init.masks;
-		const activeMask = init.masks.find(x => x.active);
-		maskRendering.updateActive(activeMask);
+		maskRendering.update(tripwire.masks);
 	}, 0);	// so maskRendering exists when it gets called
 }
