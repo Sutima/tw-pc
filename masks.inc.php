@@ -30,7 +30,7 @@ function getMasks($characterID, $corporationID, $isAdmin, $activeMask) {
 		$owned = $_SESSION['admin'] && $row->ownerID == $_SESSION['corporationID'] || $row->ownerID == $_SESSION['characterID'] ? true : false;
 		$type = $owned ? 'owned' : 'invited';
 		$ownerType = $row->ownerType == 1373 ? 'personal' : 'corporate';
-		$joinedBy = $owned ? $ownerType : ($row->eveType == 1373 ? 'personal' : 'corporate');
+		$joinedBy = ($owned || $row->ownerID == $_SESSION['corporationID']) ? $ownerType : ($row->eveType == 1373 ? 'personal' : 'corporate');
 		$masks[] = array(
 			'mask' => $row->maskID,
 			'label' => $row->name,
