@@ -35,22 +35,17 @@ const maskFunctions = {
 					}
 
 					var node = $(''
-						+ '<input type="checkbox" name="find" id="findp" value="personal" class="selector" disabled="disabled" />'
-						+ '<label for="findp"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i>'
+						+ '<input type="checkbox" name="create" id="create-mask" class="selector" />'
+						+ '<label for="create-mask"><i data-icon="plus" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i>'
 						+ '<span class="source_bar personal">&nbsp;</span>'
-						+ '<span class="selector_label">Join (Just me)</span></label>');
+						+ '<span class="selector_label">Create</span></label>');
 					
-					$("#dialog-masks #masks #invited").append(node);
 
-					if (init.admin == "1") {
-						var node = $(''
-							+ '<input type="checkbox" name="find" id="findc" value="corporate" class="selector" disabled="disabled" />'
-							+ '<label for="findc"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i>'
-							+ '<span class="source_bar corporation">&nbsp;</span>'
-							+ '<span class="selector_label">Join (Corp)</span></label>');
-						
-						$("#dialog-masks #masks #invited").append(node);
-					}
+					node.click(function(e) {
+						e.preventDefault();
+						$("#dialog-createMask").dialog("open");
+					});
+					$("#dialog-masks #masks #owned").append(node);
 					
 					const activeMask = response.masks.find(x => x.active);
 					$("#dialog-masks input[name='mask']").filter("[value='"+activeMask.mask+"']").attr("checked", true).trigger("change");
@@ -125,29 +120,29 @@ $("#mask-link").click(function(e) {
 	$("#dialog-masks").dialog('open');
  });
  
- 			// Mask selections
-			$("#masks").on("change", "input.selector:checked", function() {
-				if ($(this).data("owner")) {
-					$("#maskControls #edit").removeAttr("disabled");
-					$("#maskControls #delete").removeAttr("disabled");
-				} else {
-					$("#maskControls #edit").attr("disabled", "disabled");
-					$("#maskControls #delete").attr("disabled", "disabled");
-				}
+// Mask selections
+$("#masks").on("change", "input.selector:checked", function() {
+	if ($(this).data("owner")) {
+		$("#maskControls #edit").removeAttr("disabled");
+		$("#maskControls #delete").removeAttr("disabled");
+	} else {
+		$("#maskControls #edit").attr("disabled", "disabled");
+		$("#maskControls #delete").attr("disabled", "disabled");
+	}
 
-				if ($(this).val() != 0.0 && $(this).val().split(".")[1] == 0) {
-					$("#dialog-masks #leave").removeAttr("disabled");
-				} else {
-					$("#dialog-masks #leave").attr("disabled", "disabled");
-				}
-			});
+	if ($(this).val() != 0.0 && $(this).val().split(".")[1] == 0) {
+		$("#dialog-masks #leave").removeAttr("disabled");
+	} else {
+		$("#dialog-masks #leave").attr("disabled", "disabled");
+	}
+});
 
-const joinMask = mask => {
+const joinMask = maskID => {
 	const completeFunction = () => {
 						$.ajax({
 							url: "masks.php",
 							type: "POST",
-							data: {mask: mask, mode: "join"},
+							data: {mask: maskID, mode: "join"},
 							dataType: "JSON"
 						}).done(function(response) {
 							if (response && response.result) {
@@ -157,87 +152,39 @@ const joinMask = mask => {
 						});	
 	};
 	
-	completeFunction(); // todo
+	const mask = tripwire.masks.find(m => m.mask === maskID);
+	if(!mask) { throw 'unknown mask ' + maskID; }
+	
+	if(mask.joinedBy === 'corporate') {
+				$("#dialog-confirm #msg").text("This will add the mask '" + mask.label + " to the quick switch list for your whole corporation. Is that what you want?");
+				$("#dialog-confirm").dialog("option", {
+					buttons: {
+						Confirm: function() {
+							completeFunction();
+							$(this).dialog("close");
+						},
+						Cancel: function() {
+							$(this).dialog("close");
+						}
+					}
+				}).dialog("open");		
+	} else { completeFunction(); }
 };
 
 			// Mask join
-			$("#dialog-joinMask").dialog({
-				autoOpen: false,
-				resizable: false,
-				dialogClass: "ui-dialog-shadow dialog-noeffect dialog-modal",
-				buttons: {
-					Add: function() {
-						var mask = $("#dialog-joinMask #results input:checked");
-						joinMask(mask.val());
-					},
-					Cancel: function() {
-						$(this).dialog("close");
-					}
-				},
-				create: function() {
-					$("#dialog-joinMask form").submit(function(e) {
-						e.preventDefault();
-
-						$("#dialog-joinMask #results").html("");
-						$("#dialog-joinMask #loading").show();
-						$("#dialog-joinMask input[type='submit']").attr("disabled", "disabled");
-
-						$.ajax({
-							url: "masks.php",
-							type: "POST",
-							data: $(this).serialize(),
-							dataType: "JSON"
-						}).then(function(response) {
-							if (response && response.results && response.results.length) {
-								return tripwire.esi.fullLookup(response.eveIDs)
-									.done(function(results) {
-										if (results) {
-											for (var x in results) {
-												var mask = response.results[x];
-												var node = $(''
-													+ '<input type="radio" name="mask" id="mask'+mask.mask+'" value="'+mask.mask+'" class="selector" data-owner="false" data-admin="'+mask.admin+'" />'
-													+ '<label for="mask'+mask.mask+'" style="width: 100%; margin-left: -5px;">'
-													+ '	<img src="'+mask.img+'" />'
-													+ '	<span class="selector_label">'+mask.label+'</span>'
-													+ '	<div class="info">'
-													+ '		'+results[x].name + '<br/>'
-													+ '		'+(results[x].category == "character" ? results[x].corporation.name +'<br/>' : null)
-													+ '		'+(results[x].alliance ? results[x].alliance.name : '')+'<br/>'
-													+ '	</div>'
-													+ '</label>');
-
-												$("#dialog-joinMask #results").append(node);
-											}
-										}
-									});
-							} else if (response && response.error) {
-								$("#dialog-error #msg").text(response.error);
-								$("#dialog-error").dialog("open");
-							} else {
-								$("#dialog-error #msg").text("Unknown error");
-								$("#dialog-error").dialog("open");
-							}
-						}).then(function() {
-							$("#dialog-joinMask #loading").hide();
-							$("#dialog-joinMask input[type='submit']").removeAttr("disabled");
-						});
-					})
-				},
-				close: function() {
-					$("#dialog-joinMask #results").html("");
-					$("#dialog-joinMask input[name='name']").val("");
-				}
-			});
-
-			$("#dialog-masks #masks").on("click", "input[name='find']+label", function() {
-				$("#dialog-joinMask input[name='find']").val($(this).prev().val());
-				$("#dialog-joinMask").dialog("open");
+			$("#dialog-masks #masks").on("click", ".joinIcon", function() {
+				var maskElem = $(this).closest("input.selector+label").prev();
+				joinMask(maskElem.val());
 			});
 
 			// Mask leave
 			$("#dialog-masks #masks").on("click", ".closeIcon", function() {
-							var mask = $(this).closest("input.selector+label").prev();
-							var send = {mode: "leave", mask: mask.val()};
+				var maskElem = $(this).closest("input.selector+label").prev();
+				const mask = tripwire.masks.find(m => m.mask === maskElem.val());
+				if(!mask) { throw 'unexpected mask ' + maskElem.val(); }
+				
+				const completeFunction = () => {
+							var send = {mode: "leave", mask: maskElem.val()};
 							$.ajax({
 								url: "masks.php",
 								type: "POST",
@@ -254,7 +201,23 @@ const joinMask = mask => {
 									$("#dialog-error #msg").text("Unable to delete");
 									$("#dialog-error").dialog("open");
 								}
-							});						
+							});			
+				};
+				if(mask.joinedBy === 'corporate') {
+					$("#dialog-confirm #msg").text("This will remove the mask '" + mask.label + " from the quick switch list for your whole corporation. Is that what you want?");
+					$("#dialog-confirm").dialog("option", {
+						buttons: {
+							Confirm: function() {
+								completeFunction();
+								$(this).dialog("close");
+							},
+							Cancel: function() {
+								$(this).dialog("close");
+							}
+						}
+					}).dialog("open");							
+				} else { completeFunction(); }
+				
 			});
 
 			// Mask delete
@@ -336,10 +299,6 @@ const joinMask = mask => {
 					$("#dialog-createMask input[name='name']").val("");
 					$("#dialog-createMask #accessList :not(.static)").remove();
 				}
-			});
-
-			$("#maskControls #create").click(function() {
-				$("#dialog-createMask").dialog("open");
 			});
 
 			$("#dialog-createMask #accessList").on("click", ".maskRemove", function() {

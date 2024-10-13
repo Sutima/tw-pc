@@ -608,7 +608,6 @@ $system = $_REQUEST['system'];
 			</div>
 		</div>
 		<div id="maskControls">
-				<input type="button" id="create" value="Create" />
 				<input type="button" id="edit" value="Edit" />
 				<input type="button" id="delete" value="Delete" />
 		</div>		
