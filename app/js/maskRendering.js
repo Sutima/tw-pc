@@ -15,10 +15,11 @@ const maskRendering = new function() {
 		document.getElementById('mask').innerHTML = maskRendering.renderMask(activeMask);
 		const list = document.getElementById('mask-menu-mask-list');
 		list.innerHTML = '';
-		masks.map(m => {
+		masks.filter(m => m.owner || m.joined || m == activeMask).map(m => {
 			const a = document.createElement('a');
 			a.href = '#';
 			a.innerHTML = this.renderMask(m);
+			if(m === activeMask) { a.className = 'active'; }
 			a.addEventListener('click', e => {
 				maskFunctions.updateActiveMask(m.mask, () => document.getElementById('mask-menu').style.display = 'none');
 			});

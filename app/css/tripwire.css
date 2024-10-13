@@ -202,27 +202,6 @@ div.overlay {
 .control-group { display:inline-block; text-align: center }
 td .control-group { width: 100% }
 
-i.closeIcon {
-	position: absolute;
-	top: 0;
-	right: 0;
-	margin: -6px;
-	font-size: 1.5em;
-}
-
-i.closeIcon i {
-	position: absolute;
-	top: 25%;
-	right: 25%;
-	z-index: 1;
-	font-size: 0.5em;
-	color: lightgray;
-}
-
-i.closeIcon:hover {
-	color: darkorange;
-}
-
 .whEffect { padding-right: 2px; }
 
 .copy { font-size: 75%; margin: 0 3px; padding: 2px }

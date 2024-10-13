@@ -105,26 +105,6 @@ function doLogin(&$output, $account, $esi, $mysql, $ip, $username, $method) {
 		$_SESSION['admin'] = $account->admin;
 		$_SESSION['super'] = $account->super;
 		$_SESSION['options'] = $options;
-		
-		if($options && !isset($options['mask']['name'])) {
-			switch(substr($_SESSION['mask'], -2)) { 
-				case '.0': // Custom mask
-					$options['mask']['name'] = '(custom mask)';
-					break;
-				case '.1': // Default personal mask
-					$options['mask']['name'] = 'Private';
-					break;
-				case '.2': // Default corporate mask
-					$options['mask']['name'] = 'Corp';
-					break;
-				case '.3': // Default alliance mask
-					$options['mask']['name'] = 'Alliance';
-					break;
-				default:
-					$options['mask']['name'] = 'Unknown mask';
-					break;		
-			}	
-		}
 
 		$output['result'] = 'success';
 		$output['session'] = $_SESSION;

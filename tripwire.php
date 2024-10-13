@@ -132,6 +132,7 @@ $system = $_REQUEST['system'];
 				<div id="mask-menu-mask-list"></div>
 				<hr class="bar" />
 				<a href="#" id="mask-link">Manage masks</a>
+				<a href="#" id="admin"<?= checkAdmin($_SESSION['mask']) || checkOwner($_SESSION['mask']) ? '' : 'style="display: none"' ?>>Mask Admin</a>
 			</div>
 			<h3> | </h3>
 
@@ -610,7 +611,6 @@ $system = $_REQUEST['system'];
 				<input type="button" id="create" value="Create" />
 				<input type="button" id="edit" value="Edit" />
 				<input type="button" id="delete" value="Delete" />
-				<input type="button" id="admin" value="Mask Admin" <?= checkAdmin($_SESSION['mask']) || checkOwner($_SESSION['mask']) ? '' : 'disabled' ?>></i>
 		</div>		
 	</div>
 

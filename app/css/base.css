@@ -77,7 +77,7 @@ i.disabled {
 	text-align: center;
 }
 
-i.active {
+i.active, a.active {
 	color: orange;
 }
 

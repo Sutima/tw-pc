@@ -8,30 +8,47 @@ const maskFunctions = {
 			}).done(function(response) {
 				if (response && response.masks) {
 					tripwire.masks = response.masks;
+					maskRendering.update(tripwire.masks);
 					$("#dialog-masks #masks #default").html("");
 					$("#dialog-masks #masks #owned").html("");
 					$("#dialog-masks #masks #invited").html("");
+					
+					const iconBar = mask => 
+						'<span class="icon_bar">' +
+						(mask.optional ? '<a href="#" class="icon ' + (mask.joined ? 'closeIcon' : 'joinIcon') + '" data-tooltip="' + (mask.joined ? 'Remove from quick switch' : 'Add to quick switch') + '">' +
+							(mask.joined ? '×' : '+') + '</a>' : '')
+						+ '</span>';
+
 
 					for (var x in response.masks) {
 						var mask = response.masks[x];
 						var node = $(''
 							+ '<input type="radio" name="mask" id="mask'+x+'" value="'+mask.mask+'" class="selector" data-owner="'+mask.owner+'" data-admin="'+mask.admin+'" />'
 							+ '<label for="mask'+x+'"><img src="'+mask.img+'" />'
-							+  (mask.optional ? '<i class="closeIcon" onclick="return false;" data-icon="red-giant"><i data-icon="times"></i></i>' : '')
-							+ '<span class="selector_label">'+mask.label+'</span></label>');
+							+ iconBar(mask)
+							+ '<span class="source_bar ' + mask.joinedBy+'">&nbsp;</span>'
+							+ '<span class="selector_label">'+maskRendering.renderMask(mask)
+								+ ((mask.joined || mask.owner) ? ' <i data-icon="star" data-tooltip="On quick switch"></i>' : '')
+							+ '</span></label>');
 
 						$("#dialog-masks #masks #"+mask.type).append(node);
 					}
 
 					var node = $(''
 						+ '<input type="checkbox" name="find" id="findp" value="personal" class="selector" disabled="disabled" />'
-						+ '<label for="findp"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i></label>');
-					$("#dialog-masks #masks #owned").append(node);
+						+ '<label for="findp"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i>'
+						+ '<span class="source_bar personal">&nbsp;</span>'
+						+ '<span class="selector_label">Join (Just me)</span></label>');
+					
+					$("#dialog-masks #masks #invited").append(node);
 
 					if (init.admin == "1") {
 						var node = $(''
 							+ '<input type="checkbox" name="find" id="findc" value="corporate" class="selector" disabled="disabled" />'
-							+ '<label for="findc"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i></label>');
+							+ '<label for="findc"><i data-icon="search" style="font-size: 3em; margin-left: 16px; margin-top: 16px; display: block;"></i>'
+							+ '<span class="source_bar corporation">&nbsp;</span>'
+							+ '<span class="selector_label">Join (Corp)</span></label>');
+						
 						$("#dialog-masks #masks #invited").append(node);
 					}
 					
@@ -39,7 +56,10 @@ const maskFunctions = {
 					$("#dialog-masks input[name='mask']").filter("[value='"+activeMask.mask+"']").attr("checked", true).trigger("change");
 
 					// toggle mask admin icon
-					document.getElementById('admin').disabled = !activeMask.admin;
+					document.getElementById('admin').style.display = activeMask.admin ? '' : 'none';
+					
+					// fix tooltips for new elements
+					Tooltips.attach($("#dialog-masks").find("[data-tooltip]"));
 				}
 			});
 		}, 
@@ -122,6 +142,24 @@ $("#mask-link").click(function(e) {
 				}
 			});
 
+const joinMask = mask => {
+	const completeFunction = () => {
+						$.ajax({
+							url: "masks.php",
+							type: "POST",
+							data: {mask: mask, mode: "join"},
+							dataType: "JSON"
+						}).done(function(response) {
+							if (response && response.result) {
+								maskFunctions.getMasks();
+								$("#dialog-joinMask").dialog("close");
+							}
+						});	
+	};
+	
+	completeFunction(); // todo
+};
+
 			// Mask join
 			$("#dialog-joinMask").dialog({
 				autoOpen: false,
@@ -130,23 +168,7 @@ $("#mask-link").click(function(e) {
 				buttons: {
 					Add: function() {
 						var mask = $("#dialog-joinMask #results input:checked");
-						var label = $("#dialog-joinMask #results input:checked+label");
-
-						$.ajax({
-							url: "masks.php",
-							type: "POST",
-							data: {mask: mask.val(), mode: "join"},
-							dataType: "JSON"
-						}).done(function(response) {
-							if (response && response.result) {
-								label.css("width", "");
-								label.find(".info").remove();
-								label.append('<i class="closeIcon" onclick="return false;" data-icon="red-giant"><i data-icon="times"></i></i>');
-
-								$("#dialog-masks #masks #"+response.type+" input.selector:last").before(mask).before(label);
-								$("#dialog-joinMask").dialog("close");
-							}
-						});
+						joinMask(mask.val());
 					},
 					Cancel: function() {
 						$(this).dialog("close");
@@ -214,15 +236,8 @@ $("#mask-link").click(function(e) {
 
 			// Mask leave
 			$("#dialog-masks #masks").on("click", ".closeIcon", function() {
-				var mask = $(this).closest("input.selector+label").prev();
-
-				$("#dialog-confirm #msg").text("Are you sure you want to remove this mask?");
-
-				$("#dialog-confirm").dialog("option", {
-					buttons: {
-						Remove: function() {
+							var mask = $(this).closest("input.selector+label").prev();
 							var send = {mode: "leave", mask: mask.val()};
-
 							$.ajax({
 								url: "masks.php",
 								type: "POST",
@@ -230,8 +245,7 @@ $("#mask-link").click(function(e) {
 								dataType: "JSON"
 							}).done(function(response) {
 								if (response && response.result) {
-									mask.next().remove();
-									mask.remove();
+									maskFunctions.getMasks();
 
 									$("#dialog-confirm").dialog("close");
 								} else {
@@ -240,19 +254,12 @@ $("#mask-link").click(function(e) {
 									$("#dialog-error #msg").text("Unable to delete");
 									$("#dialog-error").dialog("open");
 								}
-							});
-						},
-						Cancel: function() {
-							$(this).dialog("close");
-						}
-					}
-				}).dialog("open");
+							});						
 			});
 
 			// Mask delete
 			$("#maskControls #delete").click(function() {
 				var mask = $("#masks input.selector:checked");
-
 				$("#dialog-confirm #msg").text("Are you sure you want to delete this mask?");
 				$("#dialog-confirm").dialog("option", {
 					buttons: {
@@ -266,9 +273,7 @@ $("#mask-link").click(function(e) {
 								dataType: "JSON"
 							}).done(function(response) {
 								if (response && response.result) {
-									mask.next().remove();
-									mask.remove();
-
+									maskFunctions.getMasks();
 									$("#dialog-confirm").dialog("close");
 								} else {
 									$("#dialog-confirm").dialog("close");
