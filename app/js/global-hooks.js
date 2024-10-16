@@ -893,7 +893,7 @@ function linkSig(sigName) {
 	];
 
 	if (wormholeSignatures.indexOf(sigName) > -1) {
-		return '<a href="http://eve-survival.org/wikka.php?wakka='+sigName.replace(/ /g, '')+'" target="_blank" class="siteLink">'+sigName+'</a>';
+		return '<a href="https://eve-survival.org/wikka.php?wakka='+sigName.replace(/ /g, '')+'" target="_blank" class="siteLink">'+sigName+'</a>';
 	}
 
 	return sigName;
