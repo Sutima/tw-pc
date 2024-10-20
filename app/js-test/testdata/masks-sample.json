@@ -15,11 +15,11 @@
             "mask": "96191857.1",
             "label": "Private",
             "owner": false,
-            "ownerType": "personal",
+            "ownerType": "character",
             "admin": true,
             "type": "default",
             "joined": 1,
-            "joinedBy": "personal",
+            "joinedBy": "character",
             "img": "\/\/image.eveonline.com\/Character\/96191857_64.jpg",
             "active": false
         },
@@ -53,10 +53,10 @@
             "joined": 0,
             "optional": false,
             "owner": true,
-            "ownerType": "personal",
+            "ownerType": "character",
             "admin": true,
             "type": "owned",
-            "joinedBy": "personal",
+            "joinedBy": "character",
             "img": "https:\/\/image.eveonline.com\/Character\/96191857_64.jpg",
             "active": false
         },
@@ -66,10 +66,10 @@
             "joined": 1,
             "optional": true,
             "owner": false,
-            "ownerType": "personal",
+            "ownerType": "character",
             "admin": false,
             "type": "owned",
-            "joinedBy": "personal",
+            "joinedBy": "character",
             "img": "https:\/\/image.eveonline.com\/Character\/96191857_64.jpg",
             "active": true
         },
@@ -82,7 +82,7 @@
             "ownerType": "corporate",
             "admin": false,
             "type": "invited",
-            "joinedBy": "personal",
+            "joinedBy": "character",
             "img": "\/\/image.eveonline.com\/Corporation\/98363074_64.png",
             "active": false
         },
@@ -98,5 +98,18 @@
             "joinedBy": "corporate",
             "img": "\/\/image.eveonline.com\/Corporation\/98363074_64.png",
             "active": false        
-		}
+		},
+        {
+            "mask": "5.0",
+            "label": "Invited through alliance",
+            "joined": 0,
+            "optional": false,
+            "owner": false,
+            "ownerType": "corporate",
+            "admin": false,
+            "type": "invited",
+            "joinedBy": "alliance",
+            "img": "\/\/image.eveonline.com\/Corporation\/98363074_64.png",
+            "active": false        
+		}		
     ]
