@@ -986,10 +986,12 @@ $system = $_REQUEST['system'];
 				</tr>
 				<tr>
 					<td colspan="2">
-						<input type="radio" value="character" name="category" id="characterSearch" />
+						<input type="checkbox" value="character" name="category" id="characterSearch" checked="checked"/>
 						<label for="characterSearch">Character</label>
-						<input type="radio" value="corporation" name="category" id="corporationSearch" checked="checked" />
+						<input type="checkbox" value="corporation" name="category" id="corporationSearch" checked="checked" />
 						<label for="corporationSearch">Corporation</label>
+						<input type="checkbox" value="alliance" name="category" id="allianceSearch" checked="checked" />
+						<label for="allianceSearch">Alliance</label>
 						<br/>
 						<input type="checkbox" value="exact" name="exact" id="exactSearch" />
 						<label for="exactSearch">Exact Match</label>

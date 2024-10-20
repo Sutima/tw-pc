@@ -2,7 +2,7 @@
 const maskRendering = new function() { 
 	/** Render a mask, as returned from masks.php */
 	this.renderMask = function(mask) {
-		const icons = { global: 'eye', personal: 'user', corporate: 'star', alliance: 'star' };
+		const icons = { global: 'eye', character: 'user', corporate: 'star', alliance: 'star' };
 
 		return '<span class="mask" data-mask="' + mask.mask + '">'
 			+ '<i data-icon="' + icons[mask.ownerType] + '" class="' + mask.ownerType + '"></i>'
@@ -15,7 +15,7 @@ const maskRendering = new function() {
 		document.getElementById('mask').innerHTML = maskRendering.renderMask(activeMask);
 		const list = document.getElementById('mask-menu-mask-list');
 		list.innerHTML = '';
-		masks.filter(m => m.owner || m.joined || m == activeMask).map(m => {
+		masks.filter(m => m.owner || (m.joined || m.joinedBy == 'alliance') || m == activeMask).map(m => {
 			const a = document.createElement('a');
 			a.href = '#';
 			a.innerHTML = this.renderMask(m);

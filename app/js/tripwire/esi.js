@@ -439,6 +439,11 @@ tripwire.esi = function() {
                                         });
                                 }
                             })
+                    } else if (data[item].category == "alliance") {
+                        tripwire.esi.allianceLookup(data[item].id, data[item], false)
+                            .done(function(allianceData) {
+                                $.extend(data[item], allianceData);
+                            })
                     }
                 }
 
