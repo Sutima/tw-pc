@@ -45,3 +45,5 @@
 
 .icon_bar .closeIcon { background: maroon }
 .icon_bar .joinIcon { background: green }
+
+#mask-explanation p { margin: 0.5em 0; }
