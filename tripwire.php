@@ -611,6 +611,9 @@ $system = $_REQUEST['system'];
 				<input type="button" id="edit" value="Edit" />
 				<input type="button" id="delete" value="Delete" />
 		</div>		
+		<div id="mask-explanation"><p>The mask source icons <span class="mask"><i data-icon="eye" class="global" data-tooltip="Global mask, visible to everyone"></i>, <i data-icon="user" class="character" data-tooltip="Personal mask, managed by the owner"></i>, <i data-icon="star" class="corporate" data-tooltip="Corporate mask, managed by corp admins"></i>, <i data-icon="star" class="alliance"data-tooltip="Alliance mask"></i></span> show where the mask comes from.</p>
+		<p>The colour of the bar on the mask preview shows how you are invited to it: grey, green or blue for being invited personally, through your corp or through your alliance. Only corp admins can add/remove corp-joined masks from the quick switch.</p>
+		</div>
 	</div>
 
 	<div id="dialog-options" title="Settings" class="hidden">
