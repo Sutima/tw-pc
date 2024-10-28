@@ -50,6 +50,8 @@
 	line-height: 40px;
 }
 
+#topbar div { line-height: normal; } /** reset for children */
+
 #topbar h1, #topbar h2, #topbar h3, #topbar form {
 	display: inline;
 }
@@ -199,27 +201,6 @@ div.overlay {
 
 .control-group { display:inline-block; text-align: center }
 td .control-group { width: 100% }
-
-i.closeIcon {
-	position: absolute;
-	top: 0;
-	right: 0;
-	margin: -6px;
-	font-size: 1.5em;
-}
-
-i.closeIcon i {
-	position: absolute;
-	top: 25%;
-	right: 25%;
-	z-index: 1;
-	font-size: 0.5em;
-	color: lightgray;
-}
-
-i.closeIcon:hover {
-	color: darkorange;
-}
 
 .whEffect { padding-right: 2px; }
 

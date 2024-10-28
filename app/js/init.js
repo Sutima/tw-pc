@@ -17,3 +17,10 @@ if(!viewingSystemID) { window.stop(); window.location = '?system=Jita'; }
 // Use this to test performance of javascript code lines
 // var startTime = window.performance.now();
 // console.log("stint: "+ (window.performance.now() - startTime));
+
+if(init.masks) {
+	setTimeout(() => {
+		tripwire.masks = init.masks;
+		maskRendering.update(tripwire.masks);
+	}, 0);	// so maskRendering exists when it gets called
+}

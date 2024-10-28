@@ -33,6 +33,7 @@ a:hover {
 	color: #FFF;
 }
 
+hr { margin: 4px; }
 hr.bar { border-style: solid }
 
 i {
@@ -76,7 +77,7 @@ i.disabled {
 	text-align: center;
 }
 
-i.active {
+i.active, a.active {
 	color: orange;
 }
 

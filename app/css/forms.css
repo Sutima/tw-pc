@@ -116,7 +116,7 @@ input.selector+label {
 	display: inline-block;
 	position: relative;
 	vertical-align: top;
-	height: 64px;
+	min-height: 64px;
 	min-width: 64px;
 	padding: 3px;
 	margin: 3px 3px;

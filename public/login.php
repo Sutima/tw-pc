@@ -61,11 +61,71 @@ function random_str(
     return $str;
 }
 
+function doLogin(&$output, $account, $esi, $mysql, $ip, $username, $method) {
+	if ($account->ban == 1) {
+		// Log the attempt
+		login_history($ip, $username, $method, 'fail');
+		
+		return 'You have been banned.';
+	} else if (!$character = $esi->getCharacter($account->characterID)) {
+		// Something crazy happened on CCP's end
+		return 'EVE ESI error.';
+	} else if (!$affiliation = $esi->getAffilitation($account->characterID)){
+		return 'EVE ESI error.';
+	} else if (!$corporation = $esi->getCorporation($affiliation[$account->characterID]->corporation_id)) {
+		// Something crazy happened on CCP's end
+		return 'EVE ESI error.';
+	} else {
+		// check and update character corp and admin powers
+		$query = 'UPDATE characters SET corporationID = :corporationID, corporationName = :corporationName, ban = 0, admin = 0 WHERE characterID = :characterID AND corporationID <> :corporationID';
+		$stmt = $mysql->prepare($query);
+		$stmt->bindValue(':characterID', $account->characterID);
+		$stmt->bindValue(':corporationID', $affiliation[$account->characterID]->corporation_id);
+		$stmt->bindValue(':corporationName', $corporation->name);
+		$stmt->execute();
+		if ($stmt->rowCount()) {
+			$query = 'SELECT id, username, password, accounts.ban, characterID, characterName, corporationID, corporationName, admin, super, options FROM accounts LEFT JOIN preferences ON id = preferences.userID LEFT JOIN characters ON id = characters.userID WHERE username = :username';
+			$stmt = $mysql->prepare($query);
+			$stmt->bindValue(':username', $username);
+			$stmt->execute();
+			$account = $stmt->fetchObject();
+		}
+
+		$options = json_decode($account->options);
+
+		$_SESSION['userID'] = $account->id;
+		$_SESSION['username'] = $account->username;
+		$_SESSION['ip'] = $ip;
+		$_SESSION['mask'] = @$options->masks->active ? $options->masks->active : $account->corporationID . '.2';
+		$_SESSION['characterID'] = $account->characterID;
+		$_SESSION['characterName'] = $account->characterName;
+		$_SESSION['corporationID'] = $account->corporationID;
+		$_SESSION['allianceID'] = $affiliation[$account->characterID]->alliance_id;
+		$_SESSION['corporationName'] = $account->corporationName;
+		$_SESSION['admin'] = $account->admin;
+		$_SESSION['super'] = $account->super;
+		$_SESSION['options'] = $options;
+
+		$output['result'] = 'success';
+		$output['session'] = $_SESSION;
+
+		// Log the attempt
+		login_history($ip, $username, $method, 'success');
+
+		$query = 'UPDATE accounts SET logins = logins + 1, lastLogin = NOW() WHERE id = :userID';
+		$stmt = $mysql->prepare($query);
+		$stmt->bindValue(':userID', $account->id);
+		$stmt->execute();
+		return false;
+	}
+}
+
 if ($mode == 'login') {
 	$username 	= isset($_REQUEST['username'])?$_REQUEST['username']:null;
 	$password 	= isset($_REQUEST['password'])?$_REQUEST['password']:null;
 	$method		= 'user';
 	$remember	= isset($_REQUEST['remember'])?1:0;
+	$output = array();
 
 	// Check input
 	if (!$username || !$password || !$ip) {
@@ -102,71 +162,17 @@ if ($mode == 'login') {
 			if ($account = $stmt->fetchObject()) {
 				require('../password_hash.php');
 				$hasher = new PasswordHash(8, FALSE);
-
-				if ($account->ban == 1) {
-					$output['field'] = 'username';
-					$output['error'] = 'You have been banned.';
-
-					// Log the attempt
-					login_history($ip, $username, $method, 'fail');
-				} else if ($hasher->CheckPassword($password, $account->password) == false) {
+				
+				if ($hasher->CheckPassword($password, $account->password) == false) {
 					$output['field'] = 'password';
 					$output['error'] = 'Password incorrect.';
 
 					// Log the attempt
 					login_history($ip, $username, $method, 'fail');
-				} else if (!$character = $esi->getCharacter($account->characterID)) {
-					// Something crazy happened on CCP's end
-					$output['field'] = 'password';
-					$output['error'] = 'EVE ESI error.';
-				} else if (!$affiliation = $esi->getAffilitation($account->characterID)){
-					$output['field'] = 'password';
-					$output['error'] = 'EVE ESI error.';
-				} else if (!$corporation = $esi->getCorporation($affiliation[$account->characterID]->corporation_id)) {
-					// Something crazy happened on CCP's end
-					$output['field'] = 'password';
-					$output['error'] = 'EVE ESI error.';
-				} else {
-					// check and update character corp and admin powers
-					$query = 'UPDATE characters SET corporationID = :corporationID, corporationName = :corporationName, ban = 0, admin = 0 WHERE characterID = :characterID AND corporationID <> :corporationID';
-					$stmt = $mysql->prepare($query);
-					$stmt->bindValue(':characterID', $account->characterID);
-					$stmt->bindValue(':corporationID', $affiliation[$account->characterID]->corporation_id);
-					$stmt->bindValue(':corporationName', $corporation->name);
-					$stmt->execute();
-					if ($stmt->rowCount()) {
-						$query = 'SELECT id, username, password, accounts.ban, characterID, characterName, corporationID, corporationName, admin, super, options FROM accounts LEFT JOIN preferences ON id = preferences.userID LEFT JOIN characters ON id = characters.userID WHERE username = :username';
-						$stmt = $mysql->prepare($query);
-						$stmt->bindValue(':username', $username);
-						$stmt->execute();
-						$account = $stmt->fetchObject();
-					}
-
-					$options = json_decode($account->options);
-
-					$_SESSION['userID'] = $account->id;
-					$_SESSION['username'] = $account->username;
-					$_SESSION['ip'] = $ip;
-					$_SESSION['mask'] = @$options->masks->active ? $options->masks->active : $account->corporationID . '.2';
-					$_SESSION['characterID'] = $account->characterID;
-					$_SESSION['characterName'] = $account->characterName;
-					$_SESSION['corporationID'] = $account->corporationID;
-          $_SESSION['corporationName'] = $account->corporationName;
-          $_SESSION['admin'] = $account->admin;
-          $_SESSION['super'] = $account->super;
-					$_SESSION['options'] = $options;
-
-					$output['result'] = 'success';
-					$output['session'] = $_SESSION;
-
-					// Log the attempt
-					login_history($ip, $username, $method, 'success');
-
-					$query = 'UPDATE accounts SET logins = logins + 1, lastLogin = NOW() WHERE id = :userID';
-					$stmt = $mysql->prepare($query);
-					$stmt->bindValue(':userID', $account->id);
-					$stmt->execute();
-
+				} else if($error = doLogin($output, $account, $esi, $mysql, $ip, $username, $method)) {
+					$output['field'] = 'username';
+					$output['error'] = $error;
+				} else {	// successfully started session
 					//save cookie on client PC for 30 days
 					if ($remember) {
 						$token = $hasher->HashPassword(random_str(30));
@@ -201,51 +207,11 @@ if ($mode == 'login') {
 			$stmt->execute();
 
 			if ($account = $stmt->fetchObject()) {
-				// check and update character corp and admin powers
-		    if (!$character = $esi->getCharacter($account->characterID)) {
-		      // Something crazy happened on CCP's end
-		      header('Location: ./?error=login-unknown#login#sso');
-		      exit();
-		    }
-
-			if (!$affiliation = $esi->getAffilitation($account->characterID)) {
-			  header('Location: ./?error=login-unknown#login#sso');
-		      exit();
-			}
-
-		    if (!$corporation = $esi->getCorporation($affiliation[$account->characterID]->corporation_id)) {
-		      // Something crazy happened on CCP's end
-		      header('Location: ./?error=login-unknown#login#sso');
-		      exit();
-		    }
-
-				$query = 'UPDATE characters SET corporationID = :corporationID, corporationName = :corporationName, ban = 0, admin = 0 WHERE characterID = :characterID AND corporationID <> :corporationID';
-				$stmt = $mysql->prepare($query);
-				$stmt->bindValue(':characterID', $account->characterID);
-				$stmt->bindValue(':corporationID', $affiliation[$account->characterID]->corporation_id);
-				$stmt->bindValue(':corporationName', $corporation->name);
-				$stmt->execute();
-				if ($stmt->rowCount()) {
-					$query = 'SELECT id, username, password, accounts.ban, characterID, characterName, corporationID, corporationName, admin, super, options FROM accounts LEFT JOIN preferences ON id = preferences.userID LEFT JOIN characters ON id = characters.userID WHERE characterID = :characterID';
-					$stmt = $mysql->prepare($query);
-					$stmt->bindValue(':characterID', $esi->characterID);
-					$stmt->execute();
-					$account = $stmt->fetchObject();
+				if($error = doLogin($output, $account, $esi, $mysql, $ip, $username, $method)) {
+					header('Location: ./?error=login-unknown#login#sso');
+					header('X-Login-Error: ' . $error);
+					exit();
 				}
-
-				$options = json_decode($account->options);
-
-				$_SESSION['userID'] = $account->id;
-				$_SESSION['username'] = $account->username;
-				$_SESSION['ip'] = $ip;
-				$_SESSION['mask'] = @$options->masks->active ? $options->masks->active : $account->corporationID . '.2';
-				$_SESSION['characterID'] = $account->characterID;
-				$_SESSION['characterName'] = $account->characterName;
-				$_SESSION['corporationID'] = $account->corporationID;
-				$_SESSION['corporationName'] = $account->corporationName;
-				$_SESSION['admin'] = $account->admin;
-				$_SESSION['super'] = $account->super;
-				$_SESSION['options'] = $options;
 
 				// Primary user access token (vs. tracked user tokens) is used
 				// to make authenticated requests needed to manage mask access.
@@ -253,14 +219,6 @@ if ($mode == 'login') {
 				$_SESSION['oauth']['accessToken'] = $esi->accessToken;
 				$_SESSION['oauth']['refreshToken'] = $esi->refreshToken;
 				$_SESSION['oauth']['tokenExpire'] = $esi->tokenExpire;
-
-				// Log the attempt
-				login_history($ip, $account->username, $method, 'success');
-
-				$query = 'UPDATE accounts SET logins = logins + 1, lastLogin = NOW() WHERE id = :userID';
-				$stmt = $mysql->prepare($query);
-				$stmt->bindValue(':userID', $account->id);
-				$stmt->execute();
 
 				if (isset($_SESSION['ssologin_system'])) {
 					header('Location: .?system=' . $_SESSION['ssologin_system']);
@@ -342,68 +300,9 @@ if ($mode == 'login') {
 		$stmt->execute();
 
 		if ($account = $stmt->fetchObject()) {
-			if ($account->ban == 1) {
+			if($error = doLogin($output, $account, $esi, $mysql, $ip, $username, $method)) {
 				$output['field'] = 'username';
-				$output['error'] = 'You have been banned.';
-
-				// Log the attempt
-				login_history($ip, $account->username, $method, 'fail');
-			} else if ($token !== $account->token) {
-				$output['field'] = 'username';
-				$output['error'] = 'Remember Me token incorrect.';
-
-				// Log the attempt
-				login_history($ip, $account->username, $method, 'fail');
-			} else if (!$character = $esi->getCharacter($account->characterID)) {
-				// Something crazy happened on CCP's end
-				$output['field'] = 'username';
-				$output['error'] = 'EVE ESI error.';
-			} else if (!$affiliation = $esi->getAffilitation($account->characterID)){
-				$output['field'] = 'username';
-				$output['error'] = 'EVE ESI error.';
-			} else if (!$corporation = $esi->getCorporation($affiliation[$account->characterID]->corporation_id)) {
-				// Something crazy happened on CCP's end
-				$output['field'] = 'username';
-				$output['error'] = 'EVE ESI error.';
-			} else {
-				$query = 'UPDATE characters SET corporationID = :corporationID, corporationName = :corporationName, ban = 0, admin = 0 WHERE characterID = :characterID AND corporationID <> :corporationID';
-				$stmt = $mysql->prepare($query);
-				$stmt->bindValue(':characterID', $account->characterID);
-				$stmt->bindValue(':corporationID', $affiliation[$account->characterID]->corporation_id);
-				$stmt->bindValue(':corporationName', $corporation->name);
-				$stmt->execute();
-				if ($stmt->rowCount()) {
-					$query = 'SELECT id, username, password, accounts.ban, characterID, characterName, corporationID, corporationName, admin, super, options, token FROM accounts LEFT JOIN tokens ON id = tokens.userID LEFT JOIN preferences ON id = preferences.userID LEFT JOIN characters ON id = characters.userID WHERE id = :userID';
-					$stmt = $mysql->prepare($query);
-					$stmt->bindValue(':userID', $userID);
-					$stmt->execute();
-					$account = $stmt->fetchObject();
-				}
-
-				$options = json_decode($account->options);
-
-				$_SESSION['userID'] = $account->id;
-				$_SESSION['username'] = $account->username;
-				$_SESSION['ip'] = $ip;
-				$_SESSION['mask'] = @$options->masks->active ? $options->masks->active : $account->corporationID . '.2';
-				$_SESSION['characterID'] = $account->characterID;
-				$_SESSION['characterName'] = $account->characterName;
-				$_SESSION['corporationID'] = $account->corporationID;
-				$_SESSION['corporationName'] = $account->corporationName;
-				$_SESSION['admin'] = $account->admin;
-				$_SESSION['super'] = $account->super;
-				$_SESSION['options'] = $options;
-
-				$output['result'] = 'success';
-				$output['session'] = $_SESSION;
-
-				// Log the attempt
-				login_history($ip, $account->username, $method, 'success');
-
-				$query = 'UPDATE accounts SET logins = logins + 1, lastLogin = NOW() WHERE id = :userID';
-				$stmt = $mysql->prepare($query);
-				$stmt->bindValue(':userID', $account->id);
-				$stmt->execute();
+				$output['error'] = $error;			
 			}
 		}
 	}

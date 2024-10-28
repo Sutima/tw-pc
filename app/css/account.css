@@ -10,7 +10,7 @@
     border-radius: 3px;
 }
 
-#login #triangle {
+.triangle {
 	position: absolute;
 	top: -5px;
 	right: 15px;

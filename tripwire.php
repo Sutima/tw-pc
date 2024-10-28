@@ -10,6 +10,7 @@ $startTime = microtime(true);
 
 require_once('config.php');
 require_once('settings.php');
+require_once('masks.inc.php');
 require('lib.inc.php');
 
 $system = $_REQUEST['system'];
@@ -60,7 +61,7 @@ $system = $_REQUEST['system'];
 				<h3><a id="user" href=""><span id="user-no-track"><?= $_SESSION['characterName'] ?></span><span id="user-track" style="display:none"><i data-icon="follow" data-tooltip="Tracking"></i><span id="user-track-name">...</span></span></a></h3>
 				<div id="panel">
 					<div id="content" class="dialog-like">
-						<div id="triangle"></div>
+						<div class="triangle"></div>
 
 						<table id="logoutTable">
 							<tr>
@@ -125,9 +126,17 @@ $system = $_REQUEST['system'];
 			</span>
 
 			<h3> | </h3>
+			<h3><a href="#" id="mask-menu-link" data-tooltip="Current mask"><span id="mask">(???)</span></a></h3>
+			<div id="mask-menu" class="toggle-panel" style="right: 68px; top:34px; display:none">
+				<div class="triangle"></div>
+				<div id="mask-menu-mask-list"></div>
+				<hr class="bar" />
+				<a href="#" id="mask-link">Manage masks</a>
+				<a href="#" id="admin"<?= checkAdmin($_SESSION['mask']) || checkOwner($_SESSION['mask']) ? '' : 'style="display: none"' ?>>Mask Admin</a>
+			</div>
+			<h3> | </h3>
 
 			<i id="settings" style="font-size: 1.7em;" data-icon="settings" class="options" data-tooltip="Settings"></i>
-			<i id="admin" style="font-size: 1.7em;" data-icon="user" data-tooltip="Mask Admin" class="<?= checkAdmin($_SESSION['mask']) || checkOwner($_SESSION['mask']) ? '' : 'disabled' ?>"></i>
 			<i id="layout" style="font-size: 1.7em;" data-icon="layout" data-tooltip="Customize layout"></i>
 		</span>
 	</div>
@@ -582,6 +591,30 @@ $system = $_REQUEST['system'];
 			</div>
 		</div>
 	</div>
+	
+	<div id="dialog-masks" title="Masks" class="hidden">
+		<div id="masks">
+			<div class="maskCategory">
+				<div class="maskCategoryLabel">Default</div>
+				<div id="default"></div>
+			</div>
+			<div class="maskCategory">
+				<div class="maskCategoryLabel">I Own</div>
+				<div id="owned"></div>
+			</div>
+			<div class="maskCategory">
+				<div class="maskCategoryLabel">I'm Invited</div>
+				<div id="invited"></div>
+			</div>
+		</div>
+		<div id="maskControls">
+				<input type="button" id="edit" value="Edit" />
+				<input type="button" id="delete" value="Delete" />
+		</div>		
+		<div id="mask-explanation"><p>The mask source icons <span class="mask"><i data-icon="eye" class="global" data-tooltip="Global mask, visible to everyone"></i>, <i data-icon="user" class="character" data-tooltip="Personal mask, managed by the owner"></i>, <i data-icon="star" class="corporate" data-tooltip="Corporate mask, managed by corp admins"></i>, <i data-icon="star" class="alliance"data-tooltip="Alliance mask"></i></span> show where the mask comes from.</p>
+		<p>The colour of the bar on the mask preview shows how you are invited to it: grey, green or blue for being invited personally, through your corp or through your alliance. Only corp admins can add/remove corp-joined masks from the quick switch.</p>
+		</div>
+	</div>
 
 	<div id="dialog-options" title="Settings" class="hidden">
 		<div id="optionsAccordion">
@@ -598,32 +631,7 @@ $system = $_REQUEST['system'];
 					<tr>
 						<th colspan="2" id="characters"></th>
 					</tr>
-					<tr class="line">
-						<th colspan="2">Masks:</th>
-					</tr>
-					<tr>
-						<td colspan="2" id="masks">
-							<div class="maskCategory">
-								<div class="maskCategoryLabel">Default</div>
-								<div id="default"></div>
-							</div>
-							<div class="maskCategory">
-								<div class="maskCategoryLabel">Personal</div>
-								<div id="personal"></div>
-							</div>
-							<div class="maskCategory">
-								<div class="maskCategoryLabel">Corporate</div>
-								<div id="corporate"></div>
-							</div>
-						</td>
-					</tr>
-					<tr id="maskControls">
-						<td colspan="2" style="padding: 5px 0;">
-							<input type="button" id="create" value="Create" />
-							<input type="button" id="edit" value="Edit" />
-							<input type="button" id="delete" value="Delete" />
-						</td>
-					</tr>
+
 				</table>
 				<div style="border-top: 1px solid black; text-align: right; margin: 0 -5px; padding: 5px 5px 0 5px;">
 					<input type="button" id="usernameChange" value="Change Username" />
@@ -981,10 +989,12 @@ $system = $_REQUEST['system'];
 				</tr>
 				<tr>
 					<td colspan="2">
-						<input type="radio" value="character" name="category" id="characterSearch" />
+						<input type="checkbox" value="character" name="category" id="characterSearch" checked="checked"/>
 						<label for="characterSearch">Character</label>
-						<input type="radio" value="corporation" name="category" id="corporationSearch" checked="checked" />
+						<input type="checkbox" value="corporation" name="category" id="corporationSearch" checked="checked" />
 						<label for="corporationSearch">Corporation</label>
+						<input type="checkbox" value="alliance" name="category" id="allianceSearch" checked="checked" />
+						<label for="allianceSearch">Alliance</label>
 						<br/>
 						<input type="checkbox" value="exact" name="exact" id="exactSearch" />
 						<label for="exactSearch">Exact Match</label>
@@ -1180,7 +1190,8 @@ $system = $_REQUEST['system'];
 
 	<script type="text/javascript">
 
-		var init = <?= json_encode($_SESSION) ?>;
+		const init = <?= json_encode($_SESSION) ?>;
+		init.masks = <?= json_encode(getMasks($_SESSION['characterID'], $_SESSION['corporationID'], $_SESSION['admin'], $_SESSION['mask'])) ?>;
 
 		var passiveHitTimer;
 		function passiveHit() {
