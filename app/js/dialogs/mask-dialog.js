@@ -305,12 +305,12 @@ const joinMask = maskID => {
 				$(this).closest("label").remove();
 			});
 			
-			function makeAccessListNode(item, prefix) {
+			function makeAccessListNode(item, prefix, name) {
 				const extraAttributes = prefix == 'edit' ? 'checked="checked" onclick="return false"' : '';
 				const buttons = prefix == 'edit' ? '<input type="button" class="maskRemove" value="Remove" style="position: absolute; bottom: 3px; right: 3px;" />' : '';
 				if (item.category == "character") {
 					return $(''
-						+ '<div class="maskNode"><input type="checkbox" ' + extraAttributes + ' name="" id="' + prefix + '_'+item.id+'_1373" value="'+item.id+'_1373" class="selector" />'
+						+ '<div class="maskNode"><input type="checkbox" ' + extraAttributes + ' name="' + name + '" id="' + prefix + '_'+item.id+'_1373" value="'+item.id+'_1373" class="selector" />'
 						+ '<label for="' + prefix + '_'+item.id+'_1373">'
 						+ '	<img src="https://image.eveonline.com/Character/'+item.id+'_64.jpg" />'
 						+ '	<span class="selector_label">Character</span>'
@@ -324,7 +324,7 @@ const joinMask = maskID => {
 
 				} else if (item.category == "corporation") {
 					return $(''
-						+ '<div class="maskNode"><input type="checkbox" ' + extraAttributes + ' name="" id="' + prefix + '_'+item.id+'_2" value="'+item.id+'_2" class="selector" />'
+						+ '<div class="maskNode"><input type="checkbox" ' + extraAttributes + ' name="' + name + '" id="' + prefix + '_'+item.id+'_2" value="'+item.id+'_2" class="selector" />'
 						+ '<label for="' + prefix + '_'+item.id+'_2">'
 						+ '	<img src="https://image.eveonline.com/Corporation/'+item.id+'_64.png" />'
 						+ '	<span class="selector_label">Corporation</span>'
@@ -337,7 +337,7 @@ const joinMask = maskID => {
 
 				} else if (item.category == "alliance") {
 					return $(''
-						+ '<div class="maskNode"><input type="checkbox" ' + extraAttributes + ' name="adds[]" id="' + prefix + '_'+item.id+'_3" value="'+item.id+'_3" class="selector" />'
+						+ '<div class="maskNode"><input type="checkbox" ' + extraAttributes + ' name="' + name + '" id="' + prefix + '_'+item.id+'_3" value="'+item.id+'_3" class="selector" />'
 						+ '<label for="' + prefix + '_'+item.id+'_3">'
 						+ '	<img src="https://image.eveonline.com/Alliance/'+item.id+'_64.png" />'
 						+ '	<span class="selector_label">Alliance</span>'
@@ -409,7 +409,7 @@ const joinMask = maskID => {
 								.done(function(results) {
 									if (results) {
 										for (var x in results) {
-											var node = makeAccessListNode(results[x], 'edit');
+											var node = makeAccessListNode(results[x], 'edit', '');
 											$("#dialog-editMask #accessList .static:first").before(node);
 										}
 									}
@@ -479,7 +479,7 @@ const joinMask = maskID => {
 											$("#EVEsearch #searchCount").html("Found: "+total+"<br/>Showing: "+(total<10?total:10));
 											if (results) {
 												for (var x in results) {
-													var node = makeAccessListNode(results[x], 'find');
+													var node = makeAccessListNode(results[x], 'find', 'adds[]');
 													$("#EVESearchResults").append(node);
 												}
 											}
