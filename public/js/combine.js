@@ -93320,6 +93320,10 @@ var appData = {
             "typeName": "Khizriel",
             "mass": 11520000
         },
+        "85086": {
+            "typeName": "Cenotaph",
+            "mass": 13000000
+        },
         "16236": {
             "typeName": "Coercer",
             "mass": 1650000
@@ -93423,6 +93427,10 @@ var appData = {
         "78367": {
             "typeName": "Mamba",
             "mass": 1750000
+        },
+        "85087": {
+            "typeName": "Tholos",
+            "mass": 1700000
         },
         "17476": {
             "typeName": "Covetor",
@@ -93668,6 +93676,10 @@ var appData = {
             "typeName": "Hydra",
             "mass": 950000
         },
+        "85062": {
+            "typeName": "Sidewinder",
+            "mass": 1400000
+        },
         "11176": {
             "typeName": "Crow",
             "mass": 1065000
@@ -93772,6 +93784,10 @@ var appData = {
             "typeName": "Tiamat",
             "mass": 9530000
         },
+        "85229": {
+            "typeName": "Cobra",
+            "mass": 12500000
+        },
         "11377": {
             "typeName": "Nemesis",
             "mass": 1410000
@@ -93863,6 +93879,10 @@ var appData = {
         "44996": {
             "typeName": "Marshal",
             "mass": 150000000
+        },
+        "85236": {
+            "typeName": "Python",
+            "mass": 141700000
         },
         "28659": {
             "typeName": "Paladin",
